@@ -16,6 +16,7 @@ from pathlib import Path
 
 import openstudio
 import pandas as pd
+import plotly.graph_objects as go
 import streamlit as st
 
 APP_DIR = Path(__file__).resolve().parent
@@ -91,6 +92,11 @@ EDUCATION_LEVELS = {
     "Ensino fundamental e médio (1,5 m²/pessoa)": 1.5,
     "Ensino superior (1,5 m²/pessoa)": 1.5,
     "Educação infantil (2,5 m²/pessoa)": 2.5,
+}
+OUTDOOR_AIR_LEVELS = {
+    "Nível 1 (mínimo)": (5.0, 0.6),
+    "Nível 2 (intermediário)": (6.3, 0.8),
+    "Nível 3 (redução de reclamações)": (7.5, 0.9),
 }
 CLASS_COLORS = {"A": "#00A651", "B": "#8CC63F", "C": "#FFF200", "D": "#FF9E1B", "E": "#ED1C24"}
 
@@ -182,6 +188,96 @@ def shading_table(osm_path):
     return pd.DataFrame(rows)
 
 
+def _site_triangles(planar_surface, transformation):
+    triangles = []
+    for triangle in planar_surface.triangulation():
+        triangles.append([transformation * point for point in triangle])
+    return triangles
+
+
+def model_geometry(osm_path):
+    """Returns the triangulated geometry of the model in site coordinates, grouped by element type."""
+    model = openstudio.model.Model.load(openstudio.path(str(osm_path))).get()
+    geometry = {"surfaces": [], "windows": [], "shading": [], "outlines": []}
+    for surface in model.getSurfaces():
+        space_opt = surface.space()
+        if space_opt.is_initialized():
+            transformation = space_opt.get().siteTransformation()
+            geometry["surfaces"].append(_site_triangles(surface, transformation))
+            geometry["outlines"].append([transformation * point for point in surface.vertices()])
+    for sub_surface in model.getSubSurfaces():
+        space_opt = sub_surface.space()
+        if space_opt.is_initialized() and sub_surface.subSurfaceType() not in ("Door", "OverheadDoor"):
+            geometry["windows"].append(_site_triangles(sub_surface, space_opt.get().siteTransformation()))
+    for shading in model.getShadingSurfaces():
+        group_opt = shading.shadingSurfaceGroup()
+        transformation = group_opt.get().siteTransformation() if group_opt.is_initialized() else openstudio.Transformation()
+        geometry["shading"].append({"name": shading.nameString(), "triangles": _site_triangles(shading, transformation),
+                                    "outline": [transformation * point for point in shading.vertices()]})
+    for key in ("surfaces", "windows"):
+        geometry[key] = [[(p.x(), p.y(), p.z()) for p in triangle] for element in geometry[key] for triangle in element]
+    geometry["outlines"] = [[(p.x(), p.y(), p.z()) for p in outline] for outline in geometry["outlines"]]
+    for item in geometry["shading"]:
+        item["triangles"] = [[(p.x(), p.y(), p.z()) for p in triangle] for triangle in item["triangles"]]
+        item["outline"] = [(p.x(), p.y(), p.z()) for p in item["outline"]]
+    return geometry
+
+
+def _mesh(triangles, color, opacity, name, show_legend=True, legend_group=None):
+    xs, ys, zs, i, j, k = [], [], [], [], [], []
+    for triangle in triangles:
+        base = len(xs)
+        for x, y, z in triangle:
+            xs.append(x)
+            ys.append(y)
+            zs.append(z)
+        i.append(base)
+        j.append(base + 1)
+        k.append(base + 2)
+    return go.Mesh3d(x=xs, y=ys, z=zs, i=i, j=j, k=k, color=color, opacity=opacity, name=name, flatshading=True,
+                     hovertemplate=f"{name}<extra></extra>", showlegend=show_legend, legendgroup=legend_group or name)
+
+
+def _edges(polygons, color):
+    xs, ys, zs = [], [], []
+    for polygon in polygons:
+        for x, y, z in list(polygon) + [polygon[0]]:
+            xs.append(x)
+            ys.append(y)
+            zs.append(z)
+        xs.append(None)
+        ys.append(None)
+        zs.append(None)
+    return go.Scatter3d(x=xs, y=ys, z=zs, mode="lines", line=dict(color=color, width=1), hoverinfo="skip", showlegend=False)
+
+
+def shading_figure(geometry, to_remove, highlighted=None):
+    """3D view of the model with the shading surfaces colored by the decision for the reference model."""
+    figure = go.Figure()
+    figure.add_trace(_mesh(geometry["surfaces"], "#B0B0B0", 0.35, "Edificação"))
+    figure.add_trace(_edges(geometry["outlines"], "#606060"))
+    if geometry["windows"]:
+        figure.add_trace(_mesh(geometry["windows"], "#6EC6FF", 0.6, "Janelas"))
+    legend_shown = set()
+    for item in geometry["shading"]:
+        if highlighted and item["name"] == highlighted:
+            color, group, opacity = "#FFD400", "Selecionada", 1.0
+        elif item["name"] in to_remove:
+            color, group, opacity = "#E53935", "Sai na referência", 0.9
+        else:
+            color, group, opacity = "#2E7D32", "Fica nos dois modelos", 0.9
+        trace = _mesh(item["triangles"], color, opacity, group, group not in legend_shown, group)
+        trace.hovertemplate = f"{item['name']}<br>{group}<extra></extra>"
+        figure.add_trace(trace)
+        figure.add_trace(_edges([item["outline"]], "#202020"))
+        legend_shown.add(group)
+    figure.update_layout(
+        scene=dict(aspectmode="data", xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False)),
+        margin=dict(l=0, r=0, t=30, b=0), height=520, legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0.0),
+    )
+    return figure
+
+
 def build_reference_model(real_osm, work_dir, shading_to_remove, lighting_app_only):
     base = work_dir / "referencia"
     base.mkdir(parents=True, exist_ok=True)
@@ -271,10 +367,14 @@ def main():
             ceea_real = st.number_input("CEEA do sistema de aquecimento do projeto (W/W)", min_value=0.5, max_value=15.0,
                                         value=round(1.72 + 0.5 * ceer_real, 2), step=0.01,
                                         help="Equação C.I.8: para split e janela, 1,72 + 0,5 x CEER, ou dado do fabricante.")
-        st.subheader("Renovação de ar (APP)")
-        oa_person = st.number_input("Vazão por pessoa (L/s)", min_value=0.0, value=7.5, step=0.5,
-                                    help="Conferir na ABNT NBR 16401 e NBR 17037 vigentes.")
-        oa_area = st.number_input("Vazão por área (L/s.m²)", min_value=0.0, value=0.0, step=0.1)
+        with st.expander("Opções avançadas"):
+            st.caption("Renovação de ar nas APPs, ABNT NBR 16401-3, Tabela 1, sala de aula. Padrão: nível 1 (mínimo). "
+                       "O mesmo valor vale para os modelos real e de referência.")
+            oa_level = st.selectbox("Nível de vazão", list(OUTDOOR_AIR_LEVELS.keys()),
+                                    help="O nível é definido entre projetista e cliente (Nota 2 da Tabela 1).")
+            level_person, level_area = OUTDOOR_AIR_LEVELS[oa_level]
+            oa_person = st.number_input("Fp, vazão por pessoa (L/s.pessoa)", min_value=0.0, value=level_person, step=0.1)
+            oa_area = st.number_input("Fa, vazão por área (L/s.m²)", min_value=0.0, value=level_area, step=0.1)
         st.subheader("Motor de simulação")
         cli_default = find_openstudio_cli()
         if cli_default or platform.system() != "Linux":
@@ -359,6 +459,7 @@ def main():
                                         oa_person / 1000.0, oa_area / 1000.0, heating)
         st.session_state["real_osm"] = real_osm
         st.session_state["shading"] = shading_table(real_osm)
+        st.session_state["geometry"] = model_geometry(real_osm)
         st.session_state.pop("results", None)
 
     if "real_osm" not in st.session_state:
@@ -376,9 +477,18 @@ def main():
     else:
         st.write("Na referência, saem só os elementos fixos de fachada (brises, venezianas, beirais, sacadas). "
                  "Entorno, circulações externas e elementos na cobertura ficam nos dois modelos (item C.I.4). "
-                 "A seleção abaixo é uma sugestão: revise antes de simular.")
-        edited = st.data_editor(shading, use_container_width=True, hide_index=True, disabled=["Nome", "Grupo", "Área (m²)"])
-        shading_to_remove = edited.loc[edited["Remover na referência"], "Nome"].tolist()
+                 "A seleção abaixo é uma sugestão: confira no modelo 3D e marque ou desmarque antes de simular.")
+        col_table, col_view = st.columns([2, 3])
+        with col_table:
+            edited = st.data_editor(shading, use_container_width=True, hide_index=True, disabled=["Nome", "Grupo", "Área (m²)"])
+            shading_to_remove = edited.loc[edited["Remover na referência"], "Nome"].tolist()
+            highlighted = st.selectbox("Destacar no modelo 3D", ["Nenhuma"] + shading["Nome"].tolist())
+        with col_view:
+            figure = shading_figure(st.session_state["geometry"], set(shading_to_remove),
+                                    None if highlighted == "Nenhuma" else highlighted)
+            st.plotly_chart(figure, use_container_width=True)
+            st.caption("Vermelho: sai na referência. Verde: fica nos dois modelos. Amarelo: superfície destacada. "
+                       "Arraste para girar, role para aproximar e passe o mouse para ver o nome.")
 
     st.header("5. Simulação e classificação")
     if epw_file is None:
