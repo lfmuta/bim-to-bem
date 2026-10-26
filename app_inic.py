@@ -98,22 +98,188 @@ OUTDOOR_AIR_LEVELS = {
     "Nível 2 (intermediário)": (6.3, 0.8),
     "Nível 3 (redução de reclamações)": (7.5, 0.9),
 }
+TRANSLATIONS = {
+    "00 Absortância ExtIR para ExtSolar": "00 Absorptance ExtIR to ExtSolar",
+    "01 Conversão gbXML para OSM": "01 gbXML to OSM conversion",
+    "02 Limpeza de schedules": "02 Schedule cleanup",
+    "03 Cargas internas": "03 Internal loads",
+    "04 Rotinas de uso e calor metabólico": "04 Use schedules and metabolic heat",
+    "07 Plenum fora da área total": "07 Plenum excluded from total area",
+    "08 Renomeação de elementos": "08 Element renaming",
+    "09 Condições de contorno": "09 Boundary conditions",
+    "10 Fronteiras de ar e integração de zonas": "10 Air boundaries and zone merging",
+    "05 Ar externo e infiltração por frestas": "05 Outdoor air and crack infiltration",
+    "06 Sistema ideal e termostato": "06 Ideal loads system and thermostat",
+    "Referência: paredes (Tabela A.9)": "Reference: walls (Table A.9)",
+    "Referência: cobertura (Tabela A.9)": "Reference: roof (Table A.9)",
+    "Referência: piso (Tabela A.9)": "Reference: floor (Table A.9)",
+    "Referência: PAF 40% e vidro (Tabela A.2)": "Reference: WWR 40% and glass (Table A.2)",
+    "Referência: PAZ 0%": "Reference: skylight ratio 0%",
+    "Referência: sombreamento de fachada": "Reference: facade shading",
+    "Referência: DPI 15,5 W/m²": "Reference: LPD 15.5 W/m²",
+    "Referência: infiltração por frestas": "Reference: crack infiltration",
+    "Indicador (kWh/ano)": "Indicator (kWh/year)",
+    "Tipologia educacional. Portaria Inmetro 309/2022, Anexo C.I.":
+        "Educational building typology. Inmetro Ordinance 309/2022, Annex C.I.",
+    "1. Arquivos de entrada": "1. Input files",
+    "Arquivo gbXML exportado do Revit": "gbXML file exported from Revit",
+    "Arquivo climático (.epw)": "Weather file (.epw)",
+    "2. Iluminação": "2. Lighting",
+    "3. Modelo real": "3. Real model",
+    "Processar gbXML e gerar o modelo real": "Process gbXML and build the real model",
+    "Modelo real gerado.": "Real model built.",
+    "4. Geometria do modelo real": "4. Real model geometry",
+    "Arraste para girar, role para aproximar e passe o mouse para ver o elemento. Clique em um item da legenda "
+    "para esconder ou mostrar esse elemento. No modelo de referência, os sombreamentos de fachada (brises, "
+    "beirais, marquises) são retirados automaticamente e o entorno é mantido (item C.I.4).":
+        "Drag to rotate, scroll to zoom and hover to see the element. Click a legend item to hide or show that element. "
+        "In the reference model, facade shading devices (louvers, overhangs, canopies) are removed automatically and the "
+        "surroundings are kept (item C.I.4).",
+    "5. Simulação e classificação": "5. Simulation and rating",
+    "Gerar referência, simular e classificar": "Build reference, simulate and rate",
+    "Limites da Tabela 8.2: A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %.":
+        "Table 8.2 limits: A > {a} %, B > {b} %, C > {c} %, D from 0 to {c} %, E < 0 %.",
+    "CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias "
+    "(simulados: {simulated}). Fator de energia primária fcE = {fce}. "
+    "O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).":
+        "Real CEER {ceer:.2f}, reference CEER {ceer_ref}. Lighting and equipment adjusted to {days} days "
+        "(simulated: {simulated}). Primary energy factor fcE = {fce}. "
+        "RedCEP excludes the equipment consumption of both models (Eq. 8.1).",
+    "6. Arquivos para conferência": "6. Files for checking",
+    "Indicador": "Indicator",
+    "Valor": "Value",
+    "Modelo real (.osm)": "Real model (.osm)",
+    "Modelo de referência (.osm)": "Reference model (.osm)",
+    "Resultados (.csv)": "Results (.csv)",
+    "Tudo (.zip)": "Everything (.zip)",
+    "Falha na etapa: {label}": "Step failed: {label}",
+    "Classificação INI-C pelo método de simulação": "INI-C rating by the simulation method",
+    "Parâmetros": "Parameters",
+    "Zona bioclimática (ABNT NBR 15220-3)": "Bioclimatic zone (ABNT NBR 15220-3)",
+    "Nível de ensino (Tabela A.2)": "Education level (Table A.2)",
+    "CEER do sistema de condicionamento de ar do projeto (W/W)": "CEER of the design air conditioning system (W/W)",
+    "O projeto possui sistema de aquecimento": "The design has a heating system",
+    "Motor de simulação": "Simulation engine",
+    "Envie o arquivo gbXML para começar.": "Upload the gbXML file to start.",
+    "Espaços do gbXML ({count})": "gbXML spaces ({count})",
+    "{count} espaço(s) com spaceType fora do dicionário APP/APT (spacetype_utils.py). "
+    "Eles recebem pessoas e equipamentos como APP, mas não recebem sistema de condicionamento. Revise no Revit.":
+        "{count} space(s) with a spaceType outside the APP/APT dictionary (spacetype_utils.py). "
+        "They receive people and equipment as APP, but no air conditioning system. Review them in Revit.",
+    "DPI de projeto encontrada no gbXML. Sistema de iluminação avaliado: modelo real com a DPI do gbXML, "
+    "referência com {dpi} W/m² nos ambientes com iluminação (item C.I.4).":
+        "Design LPD found in the gbXML. Lighting system evaluated: real model with the gbXML LPD, "
+        "reference with {dpi} W/m² in the spaces with lighting (item C.I.4).",
+    "O gbXML não tem densidade de potência de iluminação (LightPowerPerArea). Escolha como seguir:":
+        "The gbXML has no lighting power density (LightPowerPerArea). Choose how to proceed:",
+    "Iluminação": "Lighting",
+    "Informe o CEER do sistema de projeto na barra lateral.": "Enter the CEER of the design system in the sidebar.",
+    "Registro das etapas": "Processing log",
+    "Envie o arquivo climático (.epw) para simular.": "Upload the weather file (.epw) to simulate.",
+    "Informe o caminho do openstudio.exe na barra lateral.": "Enter the openstudio.exe path in the sidebar.",
+    "real": "real",
+    "de referência": "reference",
+    "Classificação geral": "Overall rating",
+    "RedCEP (Eq. 8.1)": "RedCEP (Eq. 8.1)",
+    "Envoltória": "Envelope",
+    "RedCgTT (Eq. C.I.10)": "RedCgTT (Eq. C.I.10)",
+    "Modelo real": "Real model",
+    "Modelo de referência": "Reference model",
+    "Simulação real": "Real model simulation",
+    "Simulação de referência": "Reference model simulation",
+    "Anexo B.II. Valor do sistema real, por exemplo da etiqueta Inmetro.":
+        "Annex B.II. Value of the actual system, for example from the Inmetro label.",
+    "Item C.I.6: a carga de aquecimento (setpoint 21 °C) só é calculada quando há aquecimento em projeto.":
+        "Item C.I.6: the heating load (setpoint 21 °C) is only calculated when the design includes heating.",
+    "CEEA do sistema de aquecimento do projeto (W/W)": "CEEA of the design heating system (W/W)",
+    "Opções avançadas": "Advanced options",
+    "Renovação de ar nas APPs, ABNT NBR 16401-3, Tabela 1, sala de aula. Padrão: nível 1 (mínimo). "
+    "O mesmo valor vale para os modelos real e de referência.":
+        "Outdoor air in long-stay spaces (APP), ABNT NBR 16401-3, Table 1, classroom. Default: level 1 (minimum). "
+        "The same value applies to the real and reference models.",
+    "Nível de vazão": "Airflow level",
+    "Fp, vazão por pessoa (L/s.pessoa)": "Fp, airflow per person (L/s.person)",
+    "Fa, vazão por área (L/s.m²)": "Fa, airflow per area (L/s.m²)",
+    "Caminho do openstudio.exe": "openstudio.exe path",
+    "DPI de projeto (W/m²)": "Design LPD (W/m²)",
+    "Processando etapas 00 a 10...": "Processing steps 00 to 10...",
+    "Gerando o modelo de referência...": "Building the reference model...",
+    "Simulando os dois modelos no EnergyPlus (pode levar vários minutos)...":
+        "Simulating both models in EnergyPlus (this may take several minutes)...",
+    "Zona bioclimática": "Bioclimatic zone",
+    "Classificação da envoltória": "Envelope rating",
+    "Erro: {error}": "Error: {error}",
+    "Equação C.I.8: para split e janela, 1,72 + 0,5 x CEER, ou dado do fabricante.":
+        "Equation C.I.8: for split and window units, 1.72 + 0.5 x CEER, or manufacturer data.",
+    "O nível é definido entre projetista e cliente (Nota 2 da Tabela 1).":
+        "The level is agreed between designer and client (Note 2 of Table 1).",
+    "EnergyPlus {version} pronto.": "EnergyPlus {version} ready.",
+    "EnergyPlus {version} será baixado na primeira simulação (cerca de 190 MB, uma única vez).":
+        "EnergyPlus {version} will be downloaded on the first simulation (about 190 MB, only once).",
+    "Espaço": "Space",
+    "Classificação": "Classification",
+    "DPI gbXML (W/m²)": "gbXML LPD (W/m²)",
+    "Baixando o EnergyPlus (só na primeira vez)...": "Downloading EnergyPlus (first time only)...",
+    "A simulação do modelo {name} falhou.": "The {name} model simulation failed.",
+    "Não foi possível executar o OpenStudio nesse caminho.": "OpenStudio could not be run from this path.",
+    "Falha ao preparar a simulação: {error}": "Failed to prepare the simulation: {error}",
+    "Versões diferentes: CLI {cli}, Python {python}. Use a mesma versão nos dois.":
+        "Different versions: CLI {cli}, Python {python}. Use the same version for both.",
+    "Sem classificação": "Unclassified",
+    "Não foi possível baixar o EnergyPlus: {error}": "EnergyPlus could not be downloaded: {error}",
+    "Ensino fundamental e médio (1,5 m²/pessoa)": "Primary and secondary school (1.5 m²/person)",
+    "Ensino superior (1,5 m²/pessoa)": "Higher education (1.5 m²/person)",
+    "Educação infantil (2,5 m²/pessoa)": "Early childhood education (2.5 m²/person)",
+    "Nível 1 (mínimo)": "Level 1 (minimum)",
+    "Nível 2 (intermediário)": "Level 2 (intermediate)",
+    "Nível 3 (redução de reclamações)": "Level 3 (fewer complaints)",
+    "Parede externa": "Exterior wall",
+    "Parede interna": "Interior wall",
+    "Piso em contato com o solo": "Ground floor slab",
+    "Piso entre pavimentos ou exposto": "Intermediate or exposed floor",
+    "Cobertura": "Roof",
+    "Forro ou laje interna": "Interior ceiling or slab",
+    "Janela ou porta de vidro": "Window or glass door",
+    "Porta": "Door",
+    "Claraboia": "Skylight",
+    "Sombreamento de fachada (sai na referência)": "Facade shading (removed in the reference)",
+    "Sombreamento de entorno (fica nos dois modelos)": "Surrounding shading (kept in both models)",
+    "Carga térmica de refrigeração CgTR": "Cooling thermal load CgTR",
+    "Carga térmica de aquecimento CgTA": "Heating thermal load CgTA",
+    "Consumo de refrigeração CR": "Cooling consumption CR",
+    "Consumo de aquecimento CAE": "Heating consumption CAE",
+    "Consumo de iluminação CIL": "Lighting consumption CIL",
+    "Consumo de equipamentos CEQ": "Equipment consumption CEQ",
+    "Consumo de energia elétrica CEE": "Electricity consumption CEE",
+    "Consumo de energia primária CEP": "Primary energy consumption CEP",
+    "Informar a DPI de projeto (sistema de iluminação avaliado)": "Enter the design LPD (lighting system evaluated)",
+    "Não avaliar o sistema de iluminação (DPI de referência {dpi} W/m² só nas APPs, nos dois modelos)":
+        "Do not evaluate the lighting system (reference LPD {dpi} W/m² in APP spaces only, in both models)",
+}
 CLASS_COLORS = {"A": "#00A651", "B": "#8CC63F", "C": "#FFF200", "D": "#FF9E1B", "E": "#ED1C24"}
+
+
+def t(text, **values):
+    """Returns the text in the language chosen on the page, filling the placeholders."""
+    if st.session_state.get("lang") == "en":
+        text = TRANSLATIONS.get(text, text)
+    return text.format(**values) if values else text
 
 
 def run_step(label, function, *args, **kwargs):
     """Runs one processing step capturing its console output. Stops the app when the step fails."""
+    label = t(label)
     buffer = io.StringIO()
     with contextlib.redirect_stdout(buffer):
         try:
             result = function(*args, **kwargs)
         except Exception as error:
             result = False
-            print(f"Erro: {error}")
+            print(t("Erro: {error}", error=error))
     output = buffer.getvalue().strip()
     st.session_state.setdefault("log", []).append(f"[{label}]\n{output}" if output else f"[{label}]")
     if result is False or result is None:
-        st.error(f"Falha na etapa: {label}")
+        st.error(t("Falha na etapa: {label}", label=label))
         if output:
             st.code(output)
         st.stop()
@@ -146,9 +312,9 @@ def inspect_gbxml(gbxml_path):
         space_type = space.get("spaceType", "")
         name = space.findtext("gbXML:Name", default=space.get("id", ""), namespaces=namespace)
         lpd = float(space.findtext("gbXML:LightPowerPerArea", default="0", namespaces=namespace) or 0)
-        label = spacetype_utils.get_space_type_label_by_name(space_type) or "Sem classificação"
-        rows.append({"Espaço": name, "spaceType": space_type, "Classificação": label, "DPI gbXML (W/m²)": lpd})
-    return pd.DataFrame(rows)
+        label = spacetype_utils.get_space_type_label_by_name(space_type)
+        rows.append({"name": name, "space_type": space_type, "label": label, "lpd": lpd})
+    return pd.DataFrame(rows, columns=["name", "space_type", "label", "lpd"])
 
 
 def build_real_model(gbxml_path, work_dir, area_per_person, lighting_mode, dpi_value, oa_person, oa_area, heating):
@@ -172,58 +338,98 @@ def build_real_model(gbxml_path, work_dir, area_per_person, lighting_mode, dpi_v
     return final
 
 
-def shading_table(osm_path):
-    model = openstudio.model.Model.load(openstudio.path(str(osm_path))).get()
-    remover = shade_remover.ShadingSurfaceRemover(log_path=str(Path(tempfile.gettempdir()) / "shading_inspection.log"))
-    remover.model = model
-    rows = []
-    for surface in model.getShadingSurfaces():
-        group_opt = surface.shadingSurfaceGroup()
-        rows.append({
-            "Nome": surface.nameString(),
-            "Grupo": group_opt.get().shadingSurfaceType() if group_opt.is_initialized() else "",
-            "Área (m²)": round(surface.grossArea(), 2),
-            "Remover na referência": remover.is_facade_device(surface),
-        })
-    return pd.DataFrame(rows)
+GEOMETRY_CATEGORIES = [
+    ("exterior_wall", "Parede externa", "#D7C4A3", 0.35),
+    ("interior_wall", "Parede interna", "#E6E6E6", 0.15),
+    ("ground_floor", "Piso em contato com o solo", "#8D6E63", 0.6),
+    ("floor", "Piso entre pavimentos ou exposto", "#BCAAA4", 0.3),
+    ("roof", "Cobertura", "#C0504D", 0.45),
+    ("ceiling", "Forro ou laje interna", "#CFCFCF", 0.15),
+    ("window", "Janela ou porta de vidro", "#29B6F6", 0.85),
+    ("door", "Porta", "#5D4037", 0.95),
+    ("skylight", "Claraboia", "#81D4FA", 0.85),
+    ("shading_facade", "Sombreamento de fachada (sai na referência)", "#7E57C2", 0.9),
+    ("shading_context", "Sombreamento de entorno (fica nos dois modelos)", "#43A047", 0.6),
+]
+SUB_SURFACE_OFFSET = 0.02
 
 
-def _site_triangles(planar_surface, transformation):
+def _site_triangles(planar_surface, transformation, offset=None):
     triangles = []
     for triangle in planar_surface.triangulation():
-        triangles.append([transformation * point for point in triangle])
+        points = []
+        for point in triangle:
+            if offset is not None:
+                point = openstudio.Point3d(point.x() + offset[0], point.y() + offset[1], point.z() + offset[2])
+            site_point = transformation * point
+            points.append((site_point.x(), site_point.y(), site_point.z()))
+        triangles.append(points)
     return triangles
 
 
+def _site_outline(planar_surface, transformation, offset=None):
+    points = []
+    for point in planar_surface.vertices():
+        if offset is not None:
+            point = openstudio.Point3d(point.x() + offset[0], point.y() + offset[1], point.z() + offset[2])
+        site_point = transformation * point
+        points.append((site_point.x(), site_point.y(), site_point.z()))
+    return points
+
+
+def _surface_category(surface):
+    surface_type = surface.surfaceType()
+    boundary = surface.outsideBoundaryCondition()
+    if surface_type == "Wall":
+        return "exterior_wall" if boundary == "Outdoors" else "interior_wall"
+    if surface_type == "Floor":
+        return "ground_floor" if boundary.startswith("Ground") or boundary == "Foundation" else "floor"
+    return "roof" if boundary == "Outdoors" else "ceiling"
+
+
+def _sub_surface_category(sub_surface):
+    sub_type = sub_surface.subSurfaceType()
+    if sub_type in ("Door", "OverheadDoor"):
+        return "door"
+    if sub_type in ("Skylight", "TubularDaylightDome", "TubularDaylightDiffuser"):
+        return "skylight"
+    return "window"
+
+
 def model_geometry(osm_path):
-    """Returns the triangulated geometry of the model in site coordinates, grouped by element type."""
+    """Returns the triangulated geometry of the model in site coordinates, grouped by construction element."""
     model = openstudio.model.Model.load(openstudio.path(str(osm_path))).get()
-    geometry = {"surfaces": [], "windows": [], "shading": [], "outlines": []}
+    geometry = {key: {"triangles": [], "outlines": []} for key, _, _, _ in GEOMETRY_CATEGORIES}
     for surface in model.getSurfaces():
         space_opt = surface.space()
-        if space_opt.is_initialized():
-            transformation = space_opt.get().siteTransformation()
-            geometry["surfaces"].append(_site_triangles(surface, transformation))
-            geometry["outlines"].append([transformation * point for point in surface.vertices()])
+        if not space_opt.is_initialized():
+            continue
+        transformation = space_opt.get().siteTransformation()
+        category = geometry[_surface_category(surface)]
+        category["triangles"].extend(_site_triangles(surface, transformation))
+        category["outlines"].append(_site_outline(surface, transformation))
     for sub_surface in model.getSubSurfaces():
         space_opt = sub_surface.space()
-        if space_opt.is_initialized() and sub_surface.subSurfaceType() not in ("Door", "OverheadDoor"):
-            geometry["windows"].append(_site_triangles(sub_surface, space_opt.get().siteTransformation()))
+        if not space_opt.is_initialized():
+            continue
+        transformation = space_opt.get().siteTransformation()
+        normal = sub_surface.outwardNormal()
+        offset = (normal.x() * SUB_SURFACE_OFFSET, normal.y() * SUB_SURFACE_OFFSET, normal.z() * SUB_SURFACE_OFFSET)
+        category = geometry[_sub_surface_category(sub_surface)]
+        category["triangles"].extend(_site_triangles(sub_surface, transformation, offset))
+        category["outlines"].append(_site_outline(sub_surface, transformation, offset))
+    remover = shade_remover.ShadingSurfaceRemover(log_path=str(Path(tempfile.gettempdir()) / "shading_inspection.log"))
+    remover.model = model
     for shading in model.getShadingSurfaces():
         group_opt = shading.shadingSurfaceGroup()
         transformation = group_opt.get().siteTransformation() if group_opt.is_initialized() else openstudio.Transformation()
-        geometry["shading"].append({"name": shading.nameString(), "triangles": _site_triangles(shading, transformation),
-                                    "outline": [transformation * point for point in shading.vertices()]})
-    for key in ("surfaces", "windows"):
-        geometry[key] = [[(p.x(), p.y(), p.z()) for p in triangle] for element in geometry[key] for triangle in element]
-    geometry["outlines"] = [[(p.x(), p.y(), p.z()) for p in outline] for outline in geometry["outlines"]]
-    for item in geometry["shading"]:
-        item["triangles"] = [[(p.x(), p.y(), p.z()) for p in triangle] for triangle in item["triangles"]]
-        item["outline"] = [(p.x(), p.y(), p.z()) for p in item["outline"]]
+        category = geometry["shading_facade" if remover.is_facade_device(shading) else "shading_context"]
+        category["triangles"].extend(_site_triangles(shading, transformation))
+        category["outlines"].append(_site_outline(shading, transformation))
     return geometry
 
 
-def _mesh(triangles, color, opacity, name, show_legend=True, legend_group=None):
+def _mesh(triangles, color, opacity, name):
     xs, ys, zs, i, j, k = [], [], [], [], [], []
     for triangle in triangles:
         base = len(xs)
@@ -235,10 +441,10 @@ def _mesh(triangles, color, opacity, name, show_legend=True, legend_group=None):
         j.append(base + 1)
         k.append(base + 2)
     return go.Mesh3d(x=xs, y=ys, z=zs, i=i, j=j, k=k, color=color, opacity=opacity, name=name, flatshading=True,
-                     hovertemplate=f"{name}<extra></extra>", showlegend=show_legend, legendgroup=legend_group or name)
+                     hovertemplate=f"{name}<extra></extra>", showlegend=True, legendgroup=name)
 
 
-def _edges(polygons, color):
+def _edges(polygons, name):
     xs, ys, zs = [], [], []
     for polygon in polygons:
         for x, y, z in list(polygon) + [polygon[0]]:
@@ -248,37 +454,30 @@ def _edges(polygons, color):
         xs.append(None)
         ys.append(None)
         zs.append(None)
-    return go.Scatter3d(x=xs, y=ys, z=zs, mode="lines", line=dict(color=color, width=1), hoverinfo="skip", showlegend=False)
+    return go.Scatter3d(x=xs, y=ys, z=zs, mode="lines", line=dict(color="#505050", width=1), hoverinfo="skip",
+                        showlegend=False, legendgroup=name)
 
 
-def shading_figure(geometry, to_remove, highlighted=None):
-    """3D view of the model with the shading surfaces colored by the decision for the reference model."""
+def geometry_figure(geometry):
+    """3D view of the model colored by construction element. Clicking a legend item hides or shows that element."""
     figure = go.Figure()
-    figure.add_trace(_mesh(geometry["surfaces"], "#B0B0B0", 0.35, "Edificação"))
-    figure.add_trace(_edges(geometry["outlines"], "#606060"))
-    if geometry["windows"]:
-        figure.add_trace(_mesh(geometry["windows"], "#6EC6FF", 0.6, "Janelas"))
-    legend_shown = set()
-    for item in geometry["shading"]:
-        if highlighted and item["name"] == highlighted:
-            color, group, opacity = "#FFD400", "Selecionada", 1.0
-        elif item["name"] in to_remove:
-            color, group, opacity = "#E53935", "Sai na referência", 0.9
-        else:
-            color, group, opacity = "#2E7D32", "Fica nos dois modelos", 0.9
-        trace = _mesh(item["triangles"], color, opacity, group, group not in legend_shown, group)
-        trace.hovertemplate = f"{item['name']}<br>{group}<extra></extra>"
-        figure.add_trace(trace)
-        figure.add_trace(_edges([item["outline"]], "#202020"))
-        legend_shown.add(group)
+    for key, label, color, opacity in GEOMETRY_CATEGORIES:
+        data = geometry[key]
+        if not data["triangles"]:
+            continue
+        name = t(label)
+        figure.add_trace(_mesh(data["triangles"], color, opacity, name))
+        figure.add_trace(_edges(data["outlines"], name))
     figure.update_layout(
-        scene=dict(aspectmode="data", xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False)),
-        margin=dict(l=0, r=0, t=30, b=0), height=520, legend=dict(orientation="h", yanchor="bottom", y=1.0, x=0.0),
+        scene=dict(aspectmode="data", xaxis=dict(visible=False), yaxis=dict(visible=False), zaxis=dict(visible=False),
+                   domain=dict(x=[0.28, 1.0], y=[0.0, 1.0])),
+        margin=dict(l=0, r=0, t=0, b=0), height=600,
+        legend=dict(x=0.0, y=1.0, xanchor="left", yanchor="top"),
     )
     return figure
 
 
-def build_reference_model(real_osm, work_dir, shading_to_remove, lighting_app_only):
+def build_reference_model(real_osm, work_dir, lighting_app_only):
     base = work_dir / "referencia"
     base.mkdir(parents=True, exist_ok=True)
     paths = [base / f"ref_step{i:02d}.osm" for i in range(1, 9)]
@@ -290,7 +489,7 @@ def build_reference_model(real_osm, work_dir, shading_to_remove, lighting_app_on
     run_step("Referência: piso (Tabela A.9)", floor_modifier.INICFloorModifier().run_automated, str(paths[1]), str(paths[2]))
     run_step("Referência: PAF 40% e vidro (Tabela A.2)", glazing_modifier.WWRModifier().run_automated, str(paths[2]), str(paths[3]), glazing_config)
     run_step("Referência: PAZ 0%", skylight_remover.OpenStudioSkylightRemover(str(paths[3]), str(paths[4]), assume_yes=True).run_cli)
-    remover = shade_remover.ShadingSurfaceRemover(log_path=str(base / "shading_removal.log"), names_to_remove=shading_to_remove)
+    remover = shade_remover.ShadingSurfaceRemover(log_path=str(base / "shading_removal.log"))
     run_step("Referência: sombreamento de fachada", remover.run_pipeline, paths[4], paths[5])
     run_step("Referência: DPI 15,5 W/m²", lighting_modifier.LightingPowerDensityModifier().run_automated, str(paths[5]), str(paths[6]), lighting_app_only)
     run_step("Referência: infiltração por frestas", step05.AirflowAssigner().run_automated, str(paths[6]), str(paths[7]), True)
@@ -348,62 +547,86 @@ def zip_folder(folder):
     return buffer.getvalue()
 
 
+def language_switch():
+    st.session_state.setdefault("lang", "pt")
+    label = "English" if st.session_state["lang"] == "pt" else "Português"
+    if st.button(label, key="language_button", help="Traduzir a página / Translate the page"):
+        st.session_state["lang"] = "en" if st.session_state["lang"] == "pt" else "pt"
+        st.rerun()
+
+
 def main():
-    st.set_page_config(page_title="Classificação INI-C via gbXML", layout="wide")
-    st.title("Classificação INI-C pelo método de simulação")
-    st.caption("Tipologia educacional. Portaria Inmetro 309/2022, Anexo C.I.")
+    st.set_page_config(page_title="INI-C gbXML", layout="wide")
+    st.session_state.setdefault("lang", "pt")
+    col_title, col_lang = st.columns([6, 1])
+    with col_lang:
+        language_switch()
+    with col_title:
+        st.title(t("Classificação INI-C pelo método de simulação"))
+    st.caption(t("Tipologia educacional. Portaria Inmetro 309/2022, Anexo C.I."))
 
     with st.sidebar:
-        st.header("Parâmetros")
-        bioclimatic_zone = st.selectbox("Zona bioclimática (ABNT NBR 15220-3)", coefficients.BIOCLIMATIC_ZONES, index=2)
-        education_level = st.selectbox("Nível de ensino (Tabela A.2)", list(EDUCATION_LEVELS.keys()))
+        st.header(t("Parâmetros"))
+        bioclimatic_zone = st.selectbox(t("Zona bioclimática (ABNT NBR 15220-3)"), coefficients.BIOCLIMATIC_ZONES, index=2, key="zone")
+        education_options = list(EDUCATION_LEVELS.keys())
+        education_level = st.selectbox(t("Nível de ensino (Tabela A.2)"), education_options, format_func=t,
+                                       index=education_options.index(st.session_state.get("education", education_options[0])),
+                                       key=f"education_{st.session_state['lang']}")
+        st.session_state["education"] = education_level
         area_per_person = EDUCATION_LEVELS[education_level]
-        ceer_real = st.number_input("CEER do sistema de condicionamento de ar do projeto (W/W)", min_value=0.5, max_value=15.0, value=None,
-                                    step=0.01, help="Anexo B.II. Valor do sistema real, por exemplo da etiqueta Inmetro.")
-        heating = st.checkbox("O projeto possui sistema de aquecimento", value=False,
-                              help="Item C.I.6: a carga de aquecimento (setpoint 21 °C) só é calculada quando há aquecimento em projeto.")
+        ceer_real = st.number_input(t("CEER do sistema de condicionamento de ar do projeto (W/W)"), min_value=0.5, max_value=15.0,
+                                    value=None, step=0.01, key="ceer",
+                                    help=t("Anexo B.II. Valor do sistema real, por exemplo da etiqueta Inmetro."))
+        heating = st.checkbox(t("O projeto possui sistema de aquecimento"), value=False, key="heating",
+                              help=t("Item C.I.6: a carga de aquecimento (setpoint 21 °C) só é calculada quando há aquecimento em projeto."))
         ceea_real = None
         if heating and ceer_real:
-            ceea_real = st.number_input("CEEA do sistema de aquecimento do projeto (W/W)", min_value=0.5, max_value=15.0,
-                                        value=round(1.72 + 0.5 * ceer_real, 2), step=0.01,
-                                        help="Equação C.I.8: para split e janela, 1,72 + 0,5 x CEER, ou dado do fabricante.")
-        with st.expander("Opções avançadas"):
-            st.caption("Renovação de ar nas APPs, ABNT NBR 16401-3, Tabela 1, sala de aula. Padrão: nível 1 (mínimo). "
-                       "O mesmo valor vale para os modelos real e de referência.")
-            oa_level = st.selectbox("Nível de vazão", list(OUTDOOR_AIR_LEVELS.keys()),
-                                    help="O nível é definido entre projetista e cliente (Nota 2 da Tabela 1).")
+            ceea_real = st.number_input(t("CEEA do sistema de aquecimento do projeto (W/W)"), min_value=0.5, max_value=15.0,
+                                        value=round(1.72 + 0.5 * ceer_real, 2), step=0.01, key=f"ceea_{ceer_real}",
+                                        help=t("Equação C.I.8: para split e janela, 1,72 + 0,5 x CEER, ou dado do fabricante."))
+        with st.expander(t("Opções avançadas")):
+            st.caption(t("Renovação de ar nas APPs, ABNT NBR 16401-3, Tabela 1, sala de aula. Padrão: nível 1 (mínimo). "
+                         "O mesmo valor vale para os modelos real e de referência."))
+            oa_options = list(OUTDOOR_AIR_LEVELS.keys())
+            oa_level = st.selectbox(t("Nível de vazão"), oa_options, format_func=t,
+                                    index=oa_options.index(st.session_state.get("oa_level", oa_options[0])),
+                                    key=f"oa_level_{st.session_state['lang']}",
+                                    help=t("O nível é definido entre projetista e cliente (Nota 2 da Tabela 1)."))
+            st.session_state["oa_level"] = oa_level
             level_person, level_area = OUTDOOR_AIR_LEVELS[oa_level]
-            oa_person = st.number_input("Fp, vazão por pessoa (L/s.pessoa)", min_value=0.0, value=level_person, step=0.1)
-            oa_area = st.number_input("Fa, vazão por área (L/s.m²)", min_value=0.0, value=level_area, step=0.1)
-        st.subheader("Motor de simulação")
+            oa_person = st.number_input(t("Fp, vazão por pessoa (L/s.pessoa)"), min_value=0.0, value=level_person, step=0.1, key=f"oa_person_{oa_level}")
+            oa_area = st.number_input(t("Fa, vazão por área (L/s.m²)"), min_value=0.0, value=level_area, step=0.1, key=f"oa_area_{oa_level}")
+        st.subheader(t("Motor de simulação"))
         cli_default = find_openstudio_cli()
         if cli_default or platform.system() != "Linux":
             engine = "cli"
-            executable = st.text_input("Caminho do openstudio.exe", value=cli_default)
+            executable = st.text_input(t("Caminho do openstudio.exe"), value=cli_default, key="cli_path")
             if executable:
                 version = cli_version(executable)
                 python_version = openstudio.openStudioVersion()
                 if not version:
-                    st.error("Não foi possível executar o OpenStudio nesse caminho.")
+                    st.error(t("Não foi possível executar o OpenStudio nesse caminho."))
                 elif not version.startswith(python_version):
-                    st.warning(f"Versões diferentes: CLI {version}, Python {python_version}. Use a mesma versão nos dois.")
+                    st.warning(t("Versões diferentes: CLI {cli}, Python {python}. Use a mesma versão nos dois.",
+                                 cli=version, python=python_version))
                 else:
                     st.success(f"OpenStudio {version}")
         else:
             engine = "energyplus"
             executable = energyplus_runner.find_energyplus()
             if executable:
-                st.success(f"EnergyPlus {energyplus_runner.ENERGYPLUS_VERSION} pronto.")
+                st.success(t("EnergyPlus {version} pronto.", version=energyplus_runner.ENERGYPLUS_VERSION))
             else:
-                st.info(f"EnergyPlus {energyplus_runner.ENERGYPLUS_VERSION} será baixado na primeira simulação (cerca de 190 MB, uma única vez).")
+                st.info(t("EnergyPlus {version} será baixado na primeira simulação (cerca de 190 MB, uma única vez).",
+                          version=energyplus_runner.ENERGYPLUS_VERSION))
 
-    st.header("1. Arquivos de entrada")
+    st.header(t("1. Arquivos de entrada"))
     col_gbxml, col_epw = st.columns(2)
-    gbxml_file = col_gbxml.file_uploader("Arquivo gbXML exportado do Revit", type=["xml", "gbxml"])
-    epw_file = col_epw.file_uploader("Arquivo climático (.epw)", type=["epw"])
+    gbxml_file = col_gbxml.file_uploader(t("Arquivo gbXML exportado do Revit"), type=["xml", "gbxml"], key="gbxml_file")
+    epw_file = col_epw.file_uploader(t("Arquivo climático (.epw)"), type=["epw"], key="epw_file")
 
     if gbxml_file is None:
-        st.info("Envie o arquivo gbXML para começar.")
+        st.info(t("Envie o arquivo gbXML para começar."))
         st.stop()
 
     if st.session_state.get("gbxml_name") != gbxml_file.name or "work_dir" not in st.session_state:
@@ -411,118 +634,116 @@ def main():
         work_dir.mkdir(parents=True, exist_ok=True)
         gbxml_path = work_dir / "entrada.xml"
         gbxml_path.write_bytes(gbxml_file.getvalue())
-        st.session_state.clear()
+        for key in ("real_osm", "ref_osm", "geometry", "results", "log"):
+            st.session_state.pop(key, None)
         st.session_state.update({"gbxml_name": gbxml_file.name, "work_dir": work_dir, "gbxml_path": gbxml_path})
 
     work_dir = st.session_state["work_dir"]
     gbxml_path = st.session_state["gbxml_path"]
     spaces = inspect_gbxml(gbxml_path)
 
-    with st.expander(f"Espaços do gbXML ({len(spaces)})", expanded=False):
-        st.dataframe(spaces, use_container_width=True, hide_index=True)
-    unclassified = spaces[spaces["Classificação"] == "Sem classificação"]
+    with st.expander(t("Espaços do gbXML ({count})", count=len(spaces)), expanded=False):
+        st.dataframe(pd.DataFrame({
+            t("Espaço"): spaces["name"],
+            "spaceType": spaces["space_type"],
+            t("Classificação"): [label if label else t("Sem classificação") for label in spaces["label"]],
+            t("DPI gbXML (W/m²)"): spaces["lpd"],
+        }), width="stretch", hide_index=True)
+    unclassified = spaces[spaces["label"].isna() | (spaces["label"] == "")]
     if not unclassified.empty:
-        st.warning(f"{len(unclassified)} espaço(s) com spaceType fora do dicionário APP/APT (spacetype_utils.py). "
-                   "Eles recebem pessoas e equipamentos como APP, mas não recebem sistema de condicionamento. Revise no Revit.")
+        st.warning(t("{count} espaço(s) com spaceType fora do dicionário APP/APT (spacetype_utils.py). "
+                     "Eles recebem pessoas e equipamentos como APP, mas não recebem sistema de condicionamento. Revise no Revit.",
+                     count=len(unclassified)))
 
-    st.header("2. Iluminação")
-    has_lighting = (spaces["DPI gbXML (W/m²)"] > 0).any()
+    st.header(t("2. Iluminação"))
+    has_lighting = (spaces["lpd"] > 0).any()
     if has_lighting:
         lighting_mode, dpi_value, lighting_app_only = "gbxml", None, False
-        st.success("DPI de projeto encontrada no gbXML. Sistema de iluminação avaliado: modelo real com a DPI do gbXML, "
-                   f"referência com {REFERENCE_DPI} W/m² nos ambientes com iluminação (item C.I.4).")
+        st.success(t("DPI de projeto encontrada no gbXML. Sistema de iluminação avaliado: modelo real com a DPI do gbXML, "
+                     "referência com {dpi} W/m² nos ambientes com iluminação (item C.I.4).", dpi=REFERENCE_DPI))
     else:
-        st.warning("O gbXML não tem densidade de potência de iluminação (LightPowerPerArea). Escolha como seguir:")
-        choice = st.radio("Iluminação", [
-            "Informar a DPI de projeto (sistema de iluminação avaliado)",
-            f"Não avaliar o sistema de iluminação (DPI de referência {REFERENCE_DPI} W/m² só nas APPs, nos dois modelos)",
-        ], index=None)
+        st.warning(t("O gbXML não tem densidade de potência de iluminação (LightPowerPerArea). Escolha como seguir:"))
+        lighting_options = {
+            "project": "Informar a DPI de projeto (sistema de iluminação avaliado)",
+            "reference": "Não avaliar o sistema de iluminação (DPI de referência {dpi} W/m² só nas APPs, nos dois modelos)",
+        }
+        lighting_keys = list(lighting_options.keys())
+        stored_choice = st.session_state.get("lighting_choice")
+        choice = st.radio(t("Iluminação"), lighting_keys, key=f"lighting_choice_{st.session_state['lang']}",
+                          index=lighting_keys.index(stored_choice) if stored_choice in lighting_keys else None,
+                          format_func=lambda key: t(lighting_options[key], dpi=REFERENCE_DPI))
+        st.session_state["lighting_choice"] = choice
         if choice is None:
             st.stop()
-        if choice.startswith("Informar"):
-            dpi_value = st.number_input("DPI de projeto (W/m²)", min_value=0.1, value=None, step=0.1)
+        if choice == "project":
+            dpi_value = st.number_input(t("DPI de projeto (W/m²)"), min_value=0.1, value=None, step=0.1, key="dpi_value")
             if dpi_value is None:
                 st.stop()
             lighting_mode, lighting_app_only = "project", False
         else:
             lighting_mode, dpi_value, lighting_app_only = "reference", None, True
 
-    st.header("3. Modelo real")
+    st.header(t("3. Modelo real"))
     if ceer_real is None:
-        st.info("Informe o CEER do sistema de projeto na barra lateral.")
+        st.info(t("Informe o CEER do sistema de projeto na barra lateral."))
         st.stop()
 
-    if st.button("Processar gbXML e gerar o modelo real", type="primary"):
+    if st.button(t("Processar gbXML e gerar o modelo real"), type="primary", key="build_real"):
         st.session_state["log"] = []
-        with st.spinner("Processando etapas 00 a 10..."):
+        with st.spinner(t("Processando etapas 00 a 10...")):
             real_osm = build_real_model(gbxml_path, work_dir, area_per_person, lighting_mode, dpi_value,
                                         oa_person / 1000.0, oa_area / 1000.0, heating)
         st.session_state["real_osm"] = real_osm
-        st.session_state["shading"] = shading_table(real_osm)
         st.session_state["geometry"] = model_geometry(real_osm)
         st.session_state.pop("results", None)
 
     if "real_osm" not in st.session_state:
         st.stop()
 
-    st.success("Modelo real gerado.")
-    with st.expander("Registro das etapas"):
+    st.success(t("Modelo real gerado."))
+    with st.expander(t("Registro das etapas")):
         st.code("\n\n".join(st.session_state.get("log", [])))
 
-    st.header("4. Sombreamento na referência")
-    shading = st.session_state["shading"]
-    if shading.empty:
-        st.write("O modelo não tem superfícies de sombreamento.")
-        shading_to_remove = []
-    else:
-        st.write("Na referência, saem só os elementos fixos de fachada (brises, venezianas, beirais, sacadas). "
-                 "Entorno, circulações externas e elementos na cobertura ficam nos dois modelos (item C.I.4). "
-                 "A seleção abaixo é uma sugestão: confira no modelo 3D e marque ou desmarque antes de simular.")
-        col_table, col_view = st.columns([2, 3])
-        with col_table:
-            edited = st.data_editor(shading, use_container_width=True, hide_index=True, disabled=["Nome", "Grupo", "Área (m²)"])
-            shading_to_remove = edited.loc[edited["Remover na referência"], "Nome"].tolist()
-            highlighted = st.selectbox("Destacar no modelo 3D", ["Nenhuma"] + shading["Nome"].tolist())
-        with col_view:
-            figure = shading_figure(st.session_state["geometry"], set(shading_to_remove),
-                                    None if highlighted == "Nenhuma" else highlighted)
-            st.plotly_chart(figure, use_container_width=True)
-            st.caption("Vermelho: sai na referência. Verde: fica nos dois modelos. Amarelo: superfície destacada. "
-                       "Arraste para girar, role para aproximar e passe o mouse para ver o nome.")
+    st.header(t("4. Geometria do modelo real"))
+    st.plotly_chart(geometry_figure(st.session_state["geometry"]), width="stretch")
+    st.caption(t("Arraste para girar, role para aproximar e passe o mouse para ver o elemento. Clique em um item da legenda "
+                 "para esconder ou mostrar esse elemento. No modelo de referência, os sombreamentos de fachada (brises, "
+                 "beirais, marquises) são retirados automaticamente e o entorno é mantido (item C.I.4)."))
 
-    st.header("5. Simulação e classificação")
+    st.header(t("5. Simulação e classificação"))
     if epw_file is None:
-        st.info("Envie o arquivo climático (.epw) para simular.")
+        st.info(t("Envie o arquivo climático (.epw) para simular."))
         st.stop()
     if engine == "cli" and not executable:
-        st.error("Informe o caminho do openstudio.exe na barra lateral.")
+        st.error(t("Informe o caminho do openstudio.exe na barra lateral."))
         st.stop()
 
-    if st.button("Gerar referência, simular e classificar", type="primary"):
+    if st.button(t("Gerar referência, simular e classificar"), type="primary", key="simulate"):
         epw_path = work_dir / "clima.epw"
         epw_path.write_bytes(epw_file.getvalue())
-        with st.spinner("Gerando o modelo de referência..."):
-            ref_osm = build_reference_model(st.session_state["real_osm"], work_dir, shading_to_remove, lighting_app_only)
+        with st.spinner(t("Gerando o modelo de referência...")):
+            ref_osm = build_reference_model(st.session_state["real_osm"], work_dir, lighting_app_only)
         if engine == "energyplus" and not executable:
-            with st.spinner("Baixando o EnergyPlus (só na primeira vez)..."):
+            with st.spinner(t("Baixando o EnergyPlus (só na primeira vez)...")):
                 try:
                     executable = energyplus_runner.install_energyplus()
                 except Exception as error:
-                    st.error(f"Não foi possível baixar o EnergyPlus: {error}")
+                    st.error(t("Não foi possível baixar o EnergyPlus: {error}", error=error))
                     st.stop()
-        with st.spinner("Simulando os dois modelos no EnergyPlus (pode levar vários minutos)..."):
+        with st.spinner(t("Simulando os dois modelos no EnergyPlus (pode levar vários minutos)...")):
             try:
                 jobs = {
                     "real": prepare_simulation(st.session_state["real_osm"], epw_path, work_dir / "simulacao_real", engine),
                     "referencia": prepare_simulation(ref_osm, epw_path, work_dir / "simulacao_referencia", engine),
                 }
             except Exception as error:
-                st.error(f"Falha ao preparar a simulação: {error}")
+                st.error(t("Falha ao preparar a simulação: {error}", error=error))
                 st.stop()
             outcome = run_simulations(engine, executable, jobs, epw_path)
+        model_names = {"real": t("real"), "referencia": t("de referência")}
         for name, (code, stdout, stderr) in outcome.items():
             if code != 0:
-                st.error(f"A simulação do modelo {name} falhou.")
+                st.error(t("A simulação do modelo {name} falhou.", name=model_names[name]))
                 err_file = work_dir / f"simulacao_{name}" / "run" / "eplusout.err"
                 st.code((stdout + "\n" + stderr)[-3000:])
                 if err_file.exists():
@@ -553,18 +774,19 @@ def main():
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        class_badge("Classificação geral", general_class)
+        class_badge(t("Classificação geral"), general_class)
     with col2:
-        st.metric("RedCEP (Eq. 8.1)", f"{results['redcep']:.1f} %")
+        st.metric(t("RedCEP (Eq. 8.1)"), f"{results['redcep']:.1f} %")
         st.caption(f"CRCEPD-A = {coef['crcepd_a']:.2f}, i = {coef['factor_i']:.2f} %")
     with col3:
-        class_badge("Envoltória", envelope_class)
+        class_badge(t("Envoltória"), envelope_class)
     with col4:
-        st.metric("RedCgTT (Eq. C.I.10)", f"{results['redcgtt']:.1f} %")
+        st.metric(t("RedCgTT (Eq. C.I.10)"), f"{results['redcgtt']:.1f} %")
         st.caption(f"CRCgTTD-A = {coef['crcgtt_d_a']:.2f}, i = {coef['factor_i_envelope']:.2f} %")
 
     i = coef["factor_i"]
-    st.write(f"Limites da Tabela 8.2: A > {3 * i:.1f} %, B > {2 * i:.1f} %, C > {i:.1f} %, D de 0 a {i:.1f} %, E < 0 %.")
+    st.write(t("Limites da Tabela 8.2: A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %.",
+               a=f"{3 * i:.1f}", b=f"{2 * i:.1f}", c=f"{i:.1f}"))
 
     rows = [
         ("Carga térmica de refrigeração CgTR", "cgtr"),
@@ -576,37 +798,41 @@ def main():
         ("Consumo de energia elétrica CEE", "cee"),
         ("Consumo de energia primária CEP", "cep"),
     ]
+    indicator_column = t("Indicador (kWh/ano)")
     table = pd.DataFrame({
-        "Indicador (kWh/ano)": [label for label, _ in rows],
-        "Modelo real": [round(results["real_model"][key], 1) for _, key in rows],
-        "Modelo de referência": [round(results["reference_model"][key], 1) for _, key in rows],
+        indicator_column: [t(label) for label, _ in rows],
+        t("Modelo real"): [round(results["real_model"][key], 1) for _, key in rows],
+        t("Modelo de referência"): [round(results["reference_model"][key], 1) for _, key in rows],
     })
-    st.dataframe(table, use_container_width=True, hide_index=True)
-    st.caption(f"CEER real {results['real_model']['ceer']:.2f}, CEER referência {CEER_REFERENCE}. "
-               f"Iluminação e equipamentos ajustados para {redcep.OCCUPATION_DAYS_LIGHTING_EQUIPMENT} dias "
-               f"(simulados: {results['real_model']['simulated_days']}). Fator de energia primária fcE = {redcep.PRIMARY_ENERGY_FACTOR_BRAZIL}. "
-               "O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).")
+    st.dataframe(table, width="stretch", hide_index=True)
+    st.caption(t("CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias "
+                 "(simulados: {simulated}). Fator de energia primária fcE = {fce}. "
+                 "O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).",
+                 ceer=results["real_model"]["ceer"], ceer_ref=CEER_REFERENCE, days=redcep.OCCUPATION_DAYS_LIGHTING_EQUIPMENT,
+                 simulated=results["real_model"]["simulated_days"], fce=redcep.PRIMARY_ENERGY_FACTOR_BRAZIL))
 
-    st.header("6. Arquivos para conferência")
+    st.header(t("6. Arquivos para conferência"))
+    indicator, value = t("Indicador"), t("Valor")
     summary = pd.DataFrame([
-        {"Indicador": "Zona bioclimática", "Valor": coef["bioclimatic_zone"]},
-        {"Indicador": "RedCEP (%)", "Valor": round(results["redcep"], 2)},
-        {"Indicador": "Classificação geral", "Valor": general_class},
-        {"Indicador": "RedCgTT (%)", "Valor": round(results["redcgtt"], 2)},
-        {"Indicador": "Classificação da envoltória", "Valor": envelope_class},
+        {indicator: t("Zona bioclimática"), value: coef["bioclimatic_zone"]},
+        {indicator: "RedCEP (%)", value: round(results["redcep"], 2)},
+        {indicator: t("Classificação geral"), value: general_class},
+        {indicator: "RedCgTT (%)", value: round(results["redcgtt"], 2)},
+        {indicator: t("Classificação da envoltória"), value: envelope_class},
     ])
     d1, d2, d3, d4 = st.columns(4)
-    d1.download_button("Modelo real (.osm)", Path(st.session_state["real_osm"]).read_bytes(), file_name="modelo_real.osm")
-    d2.download_button("Modelo de referência (.osm)", Path(st.session_state["ref_osm"]).read_bytes(), file_name="modelo_referencia.osm")
-    d3.download_button("Resultados (.csv)", pd.concat([summary, table.rename(columns={"Indicador (kWh/ano)": "Indicador"})]).to_csv(index=False).encode("utf-8-sig"),
+    d1.download_button(t("Modelo real (.osm)"), Path(st.session_state["real_osm"]).read_bytes(), file_name="modelo_real.osm")
+    d2.download_button(t("Modelo de referência (.osm)"), Path(st.session_state["ref_osm"]).read_bytes(), file_name="modelo_referencia.osm")
+    d3.download_button(t("Resultados (.csv)"),
+                       pd.concat([summary, table.rename(columns={indicator_column: indicator})]).to_csv(index=False).encode("utf-8-sig"),
                        file_name="resultados_inic.csv")
-    d4.download_button("Tudo (.zip)", zip_folder(work_dir), file_name="inic_gbxml_completo.zip")
+    d4.download_button(t("Tudo (.zip)"), zip_folder(work_dir), file_name="inic_gbxml_completo.zip")
 
     e1, e2 = st.columns(2)
-    for column, name, folder in ((e1, "real", "simulacao_real"), (e2, "referência", "simulacao_referencia")):
+    for column, name, folder in ((e1, t("Simulação real"), "simulacao_real"), (e2, t("Simulação de referência"), "simulacao_referencia")):
         run_dir = work_dir / folder / "run"
         with column:
-            st.subheader(f"Simulação {name}")
+            st.subheader(name)
             for file_name in ("in.idf", "eplusout.csv", "eplustbl.htm", "eplusout.err"):
                 file_path = run_dir / file_name
                 if file_path.exists():
