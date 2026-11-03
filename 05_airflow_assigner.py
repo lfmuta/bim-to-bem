@@ -9,14 +9,14 @@ from tkinter import Tk, filedialog
 from spacetype_utils import get_space_type_label
 
 class AirflowAssigner:
-    def __init__(self, outdoor_air_per_person=0.0075, outdoor_air_per_area=0.0):
+    def __init__(self, outdoor_air_per_person=0.005, outdoor_air_per_area=0.0006):
         logging.basicConfig(
             filename="assign_airflow.log",
             filemode="a",
             format="%(asctime)s - %(levelname)s - %(message)s",
             level=logging.INFO
         )
-        # Outdoor air for APP spaces (NBR 16401 / NBR 17037)
+        # Outdoor air for APP spaces (NBR 16401-3 Table 1, classroom, level 1)
         self.outdoor_air_per_person = outdoor_air_per_person  # m³/s per person
         self.outdoor_air_per_area = outdoor_air_per_area  # m³/s per m²
         # Crack infiltration for closed openings (INI-C Table C.4)
@@ -140,7 +140,8 @@ class AirflowAssigner:
             self.minimum_density_difference, self.discharge_coefficient)
         door_component.setName("INI-C Door Crack")
 
-        linked_zones = {}
+        zones = {}
+        openings = []
         processed = set()
         counts = {"windows": 0, "doors": 0, "skipped": 0}
         for sub_surface in model.getSubSurfaces():
@@ -165,6 +166,8 @@ class AirflowAssigner:
             if zone is None:
                 counts["skipped"] += 1
                 continue
+            zone_handles = [str(zone.handle())]
+            zones[zone_handles[0]] = zone
             if boundary == "Outdoors":
                 pass
             elif boundary == "Surface":
@@ -179,18 +182,47 @@ class AirflowAssigner:
                 if adjacent_zone is None or str(adjacent_zone.handle()) == str(zone.handle()):
                     counts["skipped"] += 1
                     continue
-                linked_zones[str(adjacent_zone.handle())] = adjacent_zone
+                zone_handles.append(str(adjacent_zone.handle()))
+                zones[zone_handles[1]] = adjacent_zone
             else:
                 counts["skipped"] += 1
                 continue
-            sub_surface.getAirflowNetworkSurface(component)
-            linked_zones[str(zone.handle())] = zone
+            openings.append((sub_surface, component, key, zone_handles))
             processed.add(handle)
+
+        # EnergyPlus requires at least two AirflowNetwork surfaces in each AirflowNetwork zone. Zones with a single
+        # opening (for example a stairwell with one door) are left out of the network, together with that opening.
+        excluded = set()
+        while True:
+            per_zone = {}
+            for _, _, _, zone_handles in openings:
+                for zone_handle in zone_handles:
+                    per_zone[zone_handle] = per_zone.get(zone_handle, 0) + 1
+            single = {zone_handle for zone_handle, number in per_zone.items() if number < 2}
+            if not single:
+                break
+            excluded |= single
+            kept = [opening for opening in openings if not set(opening[3]) & single]
+            counts["skipped"] += len(openings) - len(kept)
+            openings = kept
+
+        linked_zones = {}
+        for sub_surface, component, key, zone_handles in openings:
+            sub_surface.getAirflowNetworkSurface(component)
+            for zone_handle in zone_handles:
+                linked_zones[zone_handle] = zones[zone_handle]
             counts[key] += 1
 
         for zone in linked_zones.values():
             afn_zone = zone.getAirflowNetworkZone()
             afn_zone.setVentilationControlMode("NoVent")
+
+        excluded_names = sorted(zones[zone_handle].nameString() for zone_handle in excluded)
+        if excluded_names:
+            logging.warning(f"Zones without crack infiltration (fewer than two openings): {', '.join(excluded_names)}")
+            print(f" - Zones left out of the AirflowNetwork (fewer than two openings): {len(excluded_names)}")
+            for name in excluded_names:
+                print(f"   {name}")
 
         logging.info(f"AirflowNetwork: {counts['windows']} windows and {counts['doors']} doors with crack infiltration, "
                      f"{len(linked_zones)} zones linked, {counts['skipped']} openings skipped")
