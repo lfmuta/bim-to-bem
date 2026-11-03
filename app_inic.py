@@ -255,6 +255,18 @@ TRANSLATIONS = {
     "Informar a DPI de projeto (sistema de iluminação avaliado)": "Enter the design LPD (lighting system evaluated)",
     "Não avaliar o sistema de iluminação (DPI de referência {dpi} W/m² só nas APPs, nos dois modelos)":
         "Do not evaluate the lighting system (reference LPD {dpi} W/m² in APP spaces only, in both models)",
+    "piso": "floor",
+    "cobertura ou forro": "roof or ceiling",
+    "O modelo não está fechado. Estes espaços estão sem piso e/ou sem cobertura:":
+        "The model is not closed. These spaces have no floor and/or no roof:",
+    "No gbXML, essas faces vieram como superfícies do ambiente com ele mesmo (InteriorFloor ou Air), que o "
+    "OpenStudio descarta. No Revit, desenhe o piso e a laje de cobertura ou o telhado com a opção Delimitação "
+    "de ambiente marcada, faça o limite superior dos ambientes chegar até eles e exporte o gbXML de novo. Se o "
+    "telhado aparece no modelo 3D como sombreamento, é sinal de que ele não está delimitando os ambientes.":
+        "In the gbXML these faces came as surfaces between the room and itself (InteriorFloor or Air), which "
+        "OpenStudio discards. In Revit, model the floor and the roof slab or roof with Room Bounding checked, extend "
+        "the rooms' upper limit up to them and export the gbXML again. If the roof shows up in the 3D model as "
+        "shading, it is not bounding the rooms.",
 }
 CLASS_COLORS = {"A": "#00A651", "B": "#8CC63F", "C": "#FFF200", "D": "#FF9E1B", "E": "#ED1C24"}
 
@@ -352,6 +364,18 @@ GEOMETRY_CATEGORIES = [
     ("shading_context", "Sombreamento de entorno (fica nos dois modelos)", "#43A047", 0.6),
 ]
 SUB_SURFACE_OFFSET = 0.02
+
+
+def spaces_missing_enclosure(osm_path):
+    """Lists the spaces without a floor or without a roof/ceiling surface, which EnergyPlus cannot simulate correctly."""
+    model = openstudio.model.Model.load(openstudio.path(str(osm_path))).get()
+    missing = []
+    for space in model.getSpaces():
+        surface_types = {surface.surfaceType() for surface in space.surfaces()}
+        lacks = [part for part, surface_type in (("floor", "Floor"), ("roof", "RoofCeiling")) if surface_type not in surface_types]
+        if lacks:
+            missing.append((space.nameString(), lacks))
+    return missing
 
 
 def _site_triangles(planar_surface, transformation, offset=None):
@@ -634,7 +658,7 @@ def main():
         work_dir.mkdir(parents=True, exist_ok=True)
         gbxml_path = work_dir / "entrada.xml"
         gbxml_path.write_bytes(gbxml_file.getvalue())
-        for key in ("real_osm", "ref_osm", "geometry", "results", "log"):
+        for key in ("real_osm", "ref_osm", "geometry", "results", "log", "missing_enclosure"):
             st.session_state.pop(key, None)
         st.session_state.update({"gbxml_name": gbxml_file.name, "work_dir": work_dir, "gbxml_path": gbxml_path})
 
@@ -695,6 +719,7 @@ def main():
                                         oa_person / 1000.0, oa_area / 1000.0, heating)
         st.session_state["real_osm"] = real_osm
         st.session_state["geometry"] = model_geometry(real_osm)
+        st.session_state["missing_enclosure"] = spaces_missing_enclosure(real_osm)
         st.session_state.pop("results", None)
 
     if "real_osm" not in st.session_state:
@@ -709,6 +734,17 @@ def main():
     st.caption(t("Arraste para girar, role para aproximar e passe o mouse para ver o elemento. Clique em um item da legenda "
                  "para esconder ou mostrar esse elemento. No modelo de referência, os sombreamentos de fachada (brises, "
                  "beirais, marquises) são retirados automaticamente e o entorno é mantido (item C.I.4)."))
+
+    missing_enclosure = st.session_state.get("missing_enclosure", [])
+    if missing_enclosure:
+        part_names = {"floor": t("piso"), "roof": t("cobertura ou forro")}
+        listing = "\n".join(f"- {name}: {', '.join(part_names[part] for part in parts)}" for name, parts in missing_enclosure)
+        st.error(t("O modelo não está fechado. Estes espaços estão sem piso e/ou sem cobertura:") + "\n\n" + listing + "\n\n" +
+                 t("No gbXML, essas faces vieram como superfícies do ambiente com ele mesmo (InteriorFloor ou Air), que o "
+                   "OpenStudio descarta. No Revit, desenhe o piso e a laje de cobertura ou o telhado com a opção Delimitação "
+                   "de ambiente marcada, faça o limite superior dos ambientes chegar até eles e exporte o gbXML de novo. Se o "
+                   "telhado aparece no modelo 3D como sombreamento, é sinal de que ele não está delimitando os ambientes."))
+        st.stop()
 
     st.header(t("5. Simulação e classificação"))
     if epw_file is None:
