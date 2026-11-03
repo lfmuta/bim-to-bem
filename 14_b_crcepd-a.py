@@ -20,6 +20,16 @@ CRCGTT_D_A_TABLE = {
     "Educacionais": {"1R e 1M": 0.25, "2R e 2M": 0.18, "3A e 3B": 0.15, "4A e 4B": 0.09, "5A e 5B": 0.07, "6A e 6B": 0.07}
 }
 
+# CRCRD-A Table 8.7 (Tipologia vs Zona Bioclimática), air conditioning system
+CRCR_D_A_TABLE = {
+    "Educacionais": {"1R e 1M": 0.59, "2R e 2M": 0.46, "3A e 3B": 0.50, "4A e 4B": 0.41, "5A e 5B": 0.29, "6A e 6B": 0.29}
+}
+
+# DPIL for classes A and D, Table B.III.2, building area method (W/m²), lighting system
+LIGHTING_POWER_DENSITY_LIMITS = {
+    "Educacionais": {"A": 7.5, "D": 15.5}
+}
+
 # --- Utility Functions ---
 def setup_logging(output_dir: Path):
     """
@@ -59,6 +69,29 @@ def calculate_crcgtt_d_a(bioclimatic_zone: str, typology: str = TYPOLOGY, logger
         logger.info(f"Typology={typology}, Bioclimatic Zone={bioclimatic_zone} -> CRCgTTD-A = {crcgtt}")
     return crcgtt
 
+def calculate_crcr_d_a(bioclimatic_zone: str, typology: str = TYPOLOGY, logger=None) -> float:
+    """
+    Returns CRCRD-A from Table 8.7 according to typology and bioclimatic zone.
+    """
+    if bioclimatic_zone not in CRCR_D_A_TABLE[typology]:
+        raise ValueError(f"Invalid bioclimatic zone: {bioclimatic_zone}. Valid zones: {', '.join(BIOCLIMATIC_ZONES)}")
+    crcr = CRCR_D_A_TABLE[typology][bioclimatic_zone]
+    if logger:
+        logger.info(f"Typology={typology}, Bioclimatic Zone={bioclimatic_zone} -> CRCRD-A = {crcr}")
+    return crcr
+
+def calculate_lighting_factor_i(typology: str = TYPOLOGY, logger=None) -> float:
+    """
+    Calculates factor i for the lighting system (Equation 8.11).
+    The reference consumptions for classes D and A differ only in the DPIL of Table B.III.2, so
+    i = ((DPIL_D - DPIL_A) / DPIL_D * 100) / 3
+    """
+    limits = LIGHTING_POWER_DENSITY_LIMITS[typology]
+    factor_i = ((limits["D"] - limits["A"]) / limits["D"] * 100) / 3
+    if logger:
+        logger.info(f"Lighting factor i: (({limits['D']} - {limits['A']}) / {limits['D']} * 100) / 3 = {factor_i:.4f}")
+    return factor_i
+
 def calculate_factor_i(coefficient: float, logger=None) -> float:
     """
     Calculates factor i (Equations 8.8 and 8.9).
@@ -85,17 +118,21 @@ def calculate_class(reduction: float, factor_i: float) -> str:
 
 def calculate_coefficients(bioclimatic_zone: str, typology: str = TYPOLOGY, logger=None) -> dict:
     """
-    Calculates CRCEPD-A, CRCgTTD-A and the corresponding factors i.
+    Calculates CRCEPD-A, CRCgTTD-A, CRCRD-A and the corresponding factors i, and the lighting factor i.
     """
     crcepd_a = calculate_crcepd_a(bioclimatic_zone, typology, logger)
     crcgtt = calculate_crcgtt_d_a(bioclimatic_zone, typology, logger)
+    crcr = calculate_crcr_d_a(bioclimatic_zone, typology, logger)
     return {
         'bioclimatic_zone': bioclimatic_zone,
         'typology': typology,
         'crcepd_a': crcepd_a,
         'factor_i': calculate_factor_i(crcepd_a, logger),
         'crcgtt_d_a': crcgtt,
-        'factor_i_envelope': calculate_factor_i(crcgtt, logger)
+        'factor_i_envelope': calculate_factor_i(crcgtt, logger),
+        'crcr_d_a': crcr,
+        'factor_i_air_conditioning': calculate_factor_i(crcr, logger),
+        'factor_i_lighting': calculate_lighting_factor_i(typology, logger)
     }
 
 def main():
@@ -106,7 +143,7 @@ def main():
         zone = sys.argv[1] if len(sys.argv) > 1 else BIOCLIMATIC_ZONE
         output_dir = Path.cwd()
         logger = setup_logging(output_dir)
-        print("=== INI-C CRCEPD-A, CRCgTTD-A and Factor i Calculator ===\n")
+        print("=== INI-C CRCEPD-A, CRCgTTD-A, CRCRD-A and Factor i Calculator ===\n")
         print(f"Typology: {TYPOLOGY}")
         print(f"Bioclimatic Zone: {zone}")
         print("(To change the bioclimatic zone, edit BIOCLIMATIC_ZONE or pass it as argument, e.g. python 14_b_crcepd-a.py \"3A e 3B\")\n")
@@ -120,11 +157,16 @@ def main():
         print(f" Factor i (general classification) = {results['factor_i']:.4f}")
         print(f" CRCgTTD-A (Table 8.5) = {results['crcgtt_d_a']:.2f}")
         print(f" Factor i (envelope) = {results['factor_i_envelope']:.4f}")
+        print(f" CRCRD-A (Table 8.7) = {results['crcr_d_a']:.2f}")
+        print(f" Factor i (air conditioning) = {results['factor_i_air_conditioning']:.4f}")
+        print(f" Factor i (lighting, Equation 8.11) = {results['factor_i_lighting']:.4f}")
         print(f"="*70)
 
         summary_data = {
-            'Metric': ['Typology', 'Bioclimatic Zone', 'CRCEPD-A', 'Factor i', 'CRCgTTD-A', 'Factor i envelope'],
-            'Value': [results['typology'], results['bioclimatic_zone'], results['crcepd_a'], results['factor_i'], results['crcgtt_d_a'], results['factor_i_envelope']]
+            'Metric': ['Typology', 'Bioclimatic Zone', 'CRCEPD-A', 'Factor i', 'CRCgTTD-A', 'Factor i envelope',
+                       'CRCRD-A', 'Factor i air conditioning', 'Factor i lighting'],
+            'Value': [results['typology'], results['bioclimatic_zone'], results['crcepd_a'], results['factor_i'], results['crcgtt_d_a'],
+                      results['factor_i_envelope'], results['crcr_d_a'], results['factor_i_air_conditioning'], results['factor_i_lighting']]
         }
         summary_file = output_dir / "crcepd_a_summary.csv"
         pd.DataFrame(summary_data).to_csv(summary_file, index=False)
