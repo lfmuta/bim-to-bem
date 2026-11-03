@@ -68,27 +68,37 @@ class WallConstructionModifier:
             outside_face = dict(self.reference_outside_face)
         return builder.get(outside_face, inside_face)
 
+    def is_target_surface_type(self, surface):
+        """Selects the walls (surface type Wall), whatever the construction name exported by Revit."""
+        return surface.surfaceType() == "Wall"
+
     def get_target_surfaces_by_construction_name(self, model):
-        """Identifies surfaces with constructions containing target terms."""
+        """Identifies target surfaces by surface type or by construction names containing target terms."""
         target_surfaces = []
         
         for surf in model.getSurfaces():
             construction_opt = surf.construction()
-            
-            if not construction_opt.is_initialized():
+            construction = construction_opt.get() if construction_opt.is_initialized() else None
+            if construction is not None and construction.to_ConstructionAirBoundary().is_initialized():
                 continue
-            
-            construction = construction_opt.get()
+
+            if self.is_target_surface_type(surf):
+                target_surfaces.append(surf)
+                logging.info(f"Found target surface '{surf.nameString()}' by surface type")
+                continue
+
+            if construction is None:
+                continue
             construction_name = construction.nameString()
-            
+
             # Check if construction name contains any of the target terms (case-sensitive)
             for term in self.target_construction_terms:
                 if term in construction_name:
                     target_surfaces.append(surf)
                     logging.info(f"Found target surface '{surf.nameString()}' with construction '{construction_name}' containing term '{term}'")
                     break
-        
-        logging.info(f"{len(target_surfaces)} surfaces found with target construction names")
+
+        logging.info(f"{len(target_surfaces)} target surfaces found")
         return target_surfaces
 
     def apply_construction_to_surfaces(self, target_surfaces, construction):
@@ -109,7 +119,7 @@ class WallConstructionModifier:
             # Check if there are target surfaces before creating materials
             target_surfaces = self.get_target_surfaces_by_construction_name(model)
             if len(target_surfaces) == 0:
-                print("No surfaces found with target construction names (InteriorWall, ExteriorWall, UndergroundWall).")
+                print("No wall surfaces found in the model.")
                 logging.warning("No target surfaces found for modification.")
                 return False
 
