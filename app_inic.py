@@ -93,11 +93,6 @@ EDUCATION_LEVELS = {
     "Ensino superior (1,5 m²/pessoa)": 1.5,
     "Educação infantil (2,5 m²/pessoa)": 2.5,
 }
-OUTDOOR_AIR_LEVELS = {
-    "Nível 1 (mínimo)": (5.0, 0.6),
-    "Nível 2 (intermediário)": (6.3, 0.8),
-    "Nível 3 (redução de reclamações)": (7.5, 0.9),
-}
 TRANSLATIONS = {
     "00 Absortância ExtIR para ExtSolar": "00 Absorptance ExtIR to ExtSolar",
     "01 Conversão gbXML para OSM": "01 gbXML to OSM conversion",
@@ -129,22 +124,12 @@ TRANSLATIONS = {
     "Processar gbXML e gerar o modelo real": "Process gbXML and build the real model",
     "Modelo real gerado.": "Real model built.",
     "4. Geometria do modelo real": "4. Real model geometry",
-    "Arraste para girar, role para aproximar e passe o mouse para ver o elemento. Clique em um item da legenda "
-    "para esconder ou mostrar esse elemento. No modelo de referência, os sombreamentos de fachada (brises, "
-    "beirais, marquises) são retirados automaticamente e o entorno é mantido (item C.I.4).":
-        "Drag to rotate, scroll to zoom and hover to see the element. Click a legend item to hide or show that element. "
-        "In the reference model, facade shading devices (louvers, overhangs, canopies) are removed automatically and the "
-        "surroundings are kept (item C.I.4).",
+    "Arraste para girar, role para aproximar e passe o mouse para ver o elemento. Clique em um item da legenda para esconder ou mostrar esse elemento. No modelo de referência, os sombreamentos de fachada (brises, beirais, marquises) são retirados automaticamente e o entorno é mantido (item C.I.4).":
+        "Drag to rotate, scroll to zoom and hover to see the element. Click a legend item to hide or show that element. In the reference model, facade shading devices (louvers, overhangs, canopies) are removed automatically and the surroundings are kept (item C.I.4).",
     "5. Simulação e classificação": "5. Simulation and rating",
     "Gerar referência, simular e classificar": "Build reference, simulate and rate",
-    "Limites da Tabela 8.2: A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %.":
-        "Table 8.2 limits: A > {a} %, B > {b} %, C > {c} %, D from 0 to {c} %, E < 0 %.",
-    "CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias "
-    "(simulados: {simulated}). Fator de energia primária fcE = {fce}. "
-    "O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).":
-        "Real CEER {ceer:.2f}, reference CEER {ceer_ref}. Lighting and equipment adjusted to {days} days "
-        "(simulated: {simulated}). Primary energy factor fcE = {fce}. "
-        "RedCEP excludes the equipment consumption of both models (Eq. 8.1).",
+    "CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias (simulados: {simulated}). Fator de energia primária fcE = {fce}. O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).":
+        "Real CEER {ceer:.2f}, reference CEER {ceer_ref}. Lighting and equipment adjusted to {days} days (simulated: {simulated}). Primary energy factor fcE = {fce}. RedCEP excludes the equipment consumption of both models (Eq. 8.1).",
     "6. Arquivos para conferência": "6. Files for checking",
     "Indicador": "Indicator",
     "Valor": "Value",
@@ -162,14 +147,10 @@ TRANSLATIONS = {
     "Motor de simulação": "Simulation engine",
     "Envie o arquivo gbXML para começar.": "Upload the gbXML file to start.",
     "Espaços do gbXML ({count})": "gbXML spaces ({count})",
-    "{count} espaço(s) com spaceType fora do dicionário APP/APT (spacetype_utils.py). "
-    "Eles recebem pessoas e equipamentos como APP, mas não recebem sistema de condicionamento. Revise no Revit.":
-        "{count} space(s) with a spaceType outside the APP/APT dictionary (spacetype_utils.py). "
-        "They receive people and equipment as APP, but no air conditioning system. Review them in Revit.",
-    "DPI de projeto encontrada no gbXML. Sistema de iluminação avaliado: modelo real com a DPI do gbXML, "
-    "referência com {dpi} W/m² nos ambientes com iluminação (item C.I.4).":
-        "Design LPD found in the gbXML. Lighting system evaluated: real model with the gbXML LPD, "
-        "reference with {dpi} W/m² in the spaces with lighting (item C.I.4).",
+    "{count} espaço(s) com spaceType fora do dicionário APP/APT (spacetype_utils.py). Eles recebem pessoas e equipamentos como APP, mas não recebem sistema de condicionamento. Revise no Revit.":
+        "{count} space(s) with a spaceType outside the APP/APT dictionary (spacetype_utils.py). They receive people and equipment as APP, but no air conditioning system. Review them in Revit.",
+    "DPI de projeto encontrada no gbXML. Sistema de iluminação avaliado: modelo real com a DPI do gbXML, referência com {dpi} W/m² nos ambientes com iluminação (item C.I.4).":
+        "Design LPD found in the gbXML. Lighting system evaluated: real model with the gbXML LPD, reference with {dpi} W/m² in the spaces with lighting (item C.I.4).",
     "O gbXML não tem densidade de potência de iluminação (LightPowerPerArea). Escolha como seguir:":
         "The gbXML has no lighting power density (LightPowerPerArea). Choose how to proceed:",
     "Iluminação": "Lighting",
@@ -180,24 +161,15 @@ TRANSLATIONS = {
     "real": "real",
     "de referência": "reference",
     "Classificação geral": "Overall rating",
-    "RedCEP (Eq. 8.1)": "RedCEP (Eq. 8.1)",
     "Envoltória": "Envelope",
-    "RedCgTT (Eq. C.I.10)": "RedCgTT (Eq. C.I.10)",
     "Modelo real": "Real model",
     "Modelo de referência": "Reference model",
     "Simulação real": "Real model simulation",
     "Simulação de referência": "Reference model simulation",
-    "Anexo B.II. Valor do sistema real, por exemplo da etiqueta Inmetro.":
-        "Annex B.II. Value of the actual system, for example from the Inmetro label.",
     "Item C.I.6: a carga de aquecimento (setpoint 21 °C) só é calculada quando há aquecimento em projeto.":
         "Item C.I.6: the heating load (setpoint 21 °C) is only calculated when the design includes heating.",
     "CEEA do sistema de aquecimento do projeto (W/W)": "CEEA of the design heating system (W/W)",
     "Opções avançadas": "Advanced options",
-    "Renovação de ar nas APPs, ABNT NBR 16401-3, Tabela 1, sala de aula. Padrão: nível 1 (mínimo). "
-    "O mesmo valor vale para os modelos real e de referência.":
-        "Outdoor air in long-stay spaces (APP), ABNT NBR 16401-3, Table 1, classroom. Default: level 1 (minimum). "
-        "The same value applies to the real and reference models.",
-    "Nível de vazão": "Airflow level",
     "Fp, vazão por pessoa (L/s.pessoa)": "Fp, airflow per person (L/s.person)",
     "Fa, vazão por área (L/s.m²)": "Fa, airflow per area (L/s.m²)",
     "Caminho do openstudio.exe": "openstudio.exe path",
@@ -211,8 +183,6 @@ TRANSLATIONS = {
     "Erro: {error}": "Error: {error}",
     "Equação C.I.8: para split e janela, 1,72 + 0,5 x CEER, ou dado do fabricante.":
         "Equation C.I.8: for split and window units, 1.72 + 0.5 x CEER, or manufacturer data.",
-    "O nível é definido entre projetista e cliente (Nota 2 da Tabela 1).":
-        "The level is agreed between designer and client (Note 2 of Table 1).",
     "EnergyPlus {version} pronto.": "EnergyPlus {version} ready.",
     "EnergyPlus {version} será baixado na primeira simulação (cerca de 190 MB, uma única vez).":
         "EnergyPlus {version} will be downloaded on the first simulation (about 190 MB, only once).",
@@ -230,9 +200,6 @@ TRANSLATIONS = {
     "Ensino fundamental e médio (1,5 m²/pessoa)": "Primary and secondary school (1.5 m²/person)",
     "Ensino superior (1,5 m²/pessoa)": "Higher education (1.5 m²/person)",
     "Educação infantil (2,5 m²/pessoa)": "Early childhood education (2.5 m²/person)",
-    "Nível 1 (mínimo)": "Level 1 (minimum)",
-    "Nível 2 (intermediário)": "Level 2 (intermediate)",
-    "Nível 3 (redução de reclamações)": "Level 3 (fewer complaints)",
     "Parede externa": "Exterior wall",
     "Parede interna": "Interior wall",
     "Piso em contato com o solo": "Ground floor slab",
@@ -259,14 +226,31 @@ TRANSLATIONS = {
     "cobertura ou forro": "roof or ceiling",
     "O modelo não está fechado. Estes espaços estão sem piso e/ou sem cobertura:":
         "The model is not closed. These spaces have no floor and/or no roof:",
-    "No gbXML, essas faces vieram como superfícies do ambiente com ele mesmo (InteriorFloor ou Air), que o "
-    "OpenStudio descarta. No Revit, desenhe o piso e a laje de cobertura ou o telhado com a opção Delimitação "
-    "de ambiente marcada, faça o limite superior dos ambientes chegar até eles e exporte o gbXML de novo. Se o "
-    "telhado aparece no modelo 3D como sombreamento, é sinal de que ele não está delimitando os ambientes.":
-        "In the gbXML these faces came as surfaces between the room and itself (InteriorFloor or Air), which "
-        "OpenStudio discards. In Revit, model the floor and the roof slab or roof with Room Bounding checked, extend "
-        "the rooms' upper limit up to them and export the gbXML again. If the roof shows up in the 3D model as "
-        "shading, it is not bounding the rooms.",
+    "No gbXML, essas faces vieram como superfícies do ambiente com ele mesmo (InteriorFloor ou Air), que o OpenStudio descarta. No Revit, desenhe o piso e a laje de cobertura ou o telhado com a opção Delimitação de ambiente marcada, faça o limite superior dos ambientes chegar até eles e exporte o gbXML de novo. Se o telhado aparece no modelo 3D como sombreamento, é sinal de que ele não está delimitando os ambientes.":
+        "In the gbXML these faces came as surfaces between the room and itself (InteriorFloor or Air), which OpenStudio discards. In Revit, model the floor and the roof slab or roof with Room Bounding checked, extend the rooms' upper limit up to them and export the gbXML again. If the roof shows up in the 3D model as shading, it is not bounding the rooms.",
+    "Classificação da iluminação": "Lighting rating",
+    "Classificação do condicionamento de ar": "Air conditioning rating",
+    "Condicionamento de ar": "Air conditioning",
+    "Não avaliado": "Not evaluated",
+    "Classificações parciais dos sistemas": "Partial ratings of the systems",
+    "A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %":
+        "A > {a} %, B > {b} %, C > {c} %, D from 0 to {c} %, E < 0 %",
+    "Eq. 8.1, Tabela 8.2. CRCEPD-A = {crc:.2f}, i = {i:.2f} %. Limites: {limits}.":
+        "Eq. 8.1, Table 8.2. CRCEPD-A = {crc:.2f}, i = {i:.2f} %. Limits: {limits}.",
+    "Eq. C.I.10, Tabela 8.4. CRCgTTD-A = {crc:.2f}, i = {i:.2f} %.":
+        "Eq. C.I.10, Table 8.4. CRCgTTD-A = {crc:.2f}, i = {i:.2f} %.",
+    "Eq. B.II.1, Tabela 8.6. CRCRD-A = {crc:.2f}, i = {i:.2f} %.":
+        "Eq. B.II.1, Table 8.6. CRCRD-A = {crc:.2f}, i = {i:.2f} %.",
+    "Eq. B.III.1, Tabela 8.8. DPIL A = 7,5 e D = 15,5 W/m² (Tabela B.III.2), i = {i:.2f} %.":
+        "Eq. B.III.1, Table 8.8. LPD limit A = 7.5 and D = 15.5 W/m² (Table B.III.2), i = {i:.2f} %.",
+    "O gbXML não tem DPI de projeto e o sistema de iluminação não foi avaliado.":
+        "The gbXML has no design LPD and the lighting system was not evaluated.",
+    "Este campo vale apenas para sistemas unitários. Sistemas centrais (por exemplo, com resfriadores de líquido) têm o CEER calculado pelo SPLV ou pelo fator K (item B.II.4.2), que não é tratado por esta ferramenta.":
+        "This field applies to unitary systems only. Central systems (for example, with chillers) have their CEER calculated from the SPLV or the K factor (item B.II.4.2), which this tool does not handle.",
+    "Somente sistemas unitários (janela, split). CEER ponderado pela capacidade de refrigeração, Equação B.II.5: equipamentos inverter usam o IDRS da etiqueta Inmetro (corrigido pela Tabela B.II.1 nas zonas 2R, 4A, 4B, 5B e 6B) e equipamentos de rotação fixa usam 1,062 x CEE.":
+        "Unitary systems only (window, split). CEER weighted by cooling capacity, Equation B.II.5: inverter units use the IDRS from the Inmetro label (corrected by Table B.II.1 in zones 2R, 4A, 4B, 5B and 6B) and fixed speed units use 1.062 x CEE.",
+    "Renovação de ar nas APPs, aplicada igualmente aos modelos real e de referência. Os valores iniciais são os da ABNT NBR 16401-3, Tabela 1, sala de aula, nível 1.":
+        "Outdoor air in long-stay spaces (APP), applied equally to the real and reference models. The initial values are those of ABNT NBR 16401-3, Table 1, classroom, level 1.",
 }
 CLASS_COLORS = {"A": "#00A651", "B": "#8CC63F", "C": "#FFF200", "D": "#FF9E1B", "E": "#ED1C24"}
 
@@ -551,13 +535,14 @@ def run_simulations(engine, executable, jobs, epw_path):
     return results
 
 
-def class_badge(label, value):
-    color = CLASS_COLORS.get(value, "#999999")
+def class_badge(label, value, size="large"):
+    color = CLASS_COLORS.get(value, "#BDBDBD")
     text_color = "#000000" if value in ("C", "D", "B") else "#FFFFFF"
+    box, font, label_size = ("7rem", "4.5rem", "1.1rem") if size == "large" else ("3.2rem", "1.9rem", "0.85rem")
     st.markdown(
-        f"<div style='text-align:center'><div style='font-size:0.9rem'>{label}</div>"
-        f"<div style='display:inline-block;background:{color};color:{text_color};font-size:3rem;font-weight:700;"
-        f"width:5rem;height:5rem;line-height:5rem;border-radius:0.5rem'>{value}</div></div>",
+        f"<div style='text-align:center'><div style='font-size:{label_size};font-weight:600;margin-bottom:0.3rem'>{label}</div>"
+        f"<div style='display:inline-block;background:{color};color:{text_color};font-size:{font};font-weight:700;"
+        f"width:{box};height:{box};line-height:{box};border-radius:0.5rem'>{value}</div></div>",
         unsafe_allow_html=True,
     )
 
@@ -600,7 +585,11 @@ def main():
         area_per_person = EDUCATION_LEVELS[education_level]
         ceer_real = st.number_input(t("CEER do sistema de condicionamento de ar do projeto (W/W)"), min_value=0.5, max_value=15.0,
                                     value=None, step=0.01, key="ceer",
-                                    help=t("Anexo B.II. Valor do sistema real, por exemplo da etiqueta Inmetro."))
+                                    help=t("Somente sistemas unitários (janela, split). CEER ponderado pela capacidade de refrigeração, "
+                                           "Equação B.II.5: equipamentos inverter usam o IDRS da etiqueta Inmetro (corrigido pela "
+                                           "Tabela B.II.1 nas zonas 2R, 4A, 4B, 5B e 6B) e equipamentos de rotação fixa usam 1,062 x CEE."))
+        st.caption(t("Este campo vale apenas para sistemas unitários. Sistemas centrais (por exemplo, com resfriadores de líquido) "
+                     "têm o CEER calculado pelo SPLV ou pelo fator K (item B.II.4.2), que não é tratado por esta ferramenta."))
         heating = st.checkbox(t("O projeto possui sistema de aquecimento"), value=False, key="heating",
                               help=t("Item C.I.6: a carga de aquecimento (setpoint 21 °C) só é calculada quando há aquecimento em projeto."))
         ceea_real = None
@@ -609,17 +598,10 @@ def main():
                                         value=round(1.72 + 0.5 * ceer_real, 2), step=0.01, key=f"ceea_{ceer_real}",
                                         help=t("Equação C.I.8: para split e janela, 1,72 + 0,5 x CEER, ou dado do fabricante."))
         with st.expander(t("Opções avançadas")):
-            st.caption(t("Renovação de ar nas APPs, ABNT NBR 16401-3, Tabela 1, sala de aula. Padrão: nível 1 (mínimo). "
-                         "O mesmo valor vale para os modelos real e de referência."))
-            oa_options = list(OUTDOOR_AIR_LEVELS.keys())
-            oa_level = st.selectbox(t("Nível de vazão"), oa_options, format_func=t,
-                                    index=oa_options.index(st.session_state.get("oa_level", oa_options[0])),
-                                    key=f"oa_level_{st.session_state['lang']}",
-                                    help=t("O nível é definido entre projetista e cliente (Nota 2 da Tabela 1)."))
-            st.session_state["oa_level"] = oa_level
-            level_person, level_area = OUTDOOR_AIR_LEVELS[oa_level]
-            oa_person = st.number_input(t("Fp, vazão por pessoa (L/s.pessoa)"), min_value=0.0, value=level_person, step=0.1, key=f"oa_person_{oa_level}")
-            oa_area = st.number_input(t("Fa, vazão por área (L/s.m²)"), min_value=0.0, value=level_area, step=0.1, key=f"oa_area_{oa_level}")
+            st.caption(t("Renovação de ar nas APPs, aplicada igualmente aos modelos real e de referência. Os valores iniciais são "
+                         "os da ABNT NBR 16401-3, Tabela 1, sala de aula, nível 1."))
+            oa_person = st.number_input(t("Fp, vazão por pessoa (L/s.pessoa)"), min_value=0.0, value=5.0, step=0.1, key="oa_person")
+            oa_area = st.number_input(t("Fa, vazão por área (L/s.m²)"), min_value=0.0, value=0.6, step=0.1, key="oa_area")
         st.subheader(t("Motor de simulação"))
         cli_default = find_openstudio_cli()
         if cli_default or platform.system() != "Linux":
@@ -797,6 +779,7 @@ def main():
             ref_areas = redcep.extract_building_areas(ref_run / "eplustbl.htm")
         results = redcep.calculate_cep_and_redcep(real, ref, real_areas, ref_areas)
         results["coefficients"] = coefficients.calculate_coefficients(bioclimatic_zone)
+        results["lighting_evaluated"] = lighting_mode != "reference"
         st.session_state["results"] = results
         st.session_state["ref_osm"] = ref_osm
 
@@ -807,22 +790,36 @@ def main():
     coef = results["coefficients"]
     general_class = coefficients.calculate_class(results["redcep"], coef["factor_i"])
     envelope_class = coefficients.calculate_class(results["redcgtt"], coef["factor_i_envelope"])
+    air_conditioning_class = coefficients.calculate_class(results["redcr"], coef["factor_i_air_conditioning"])
+    lighting_evaluated = results.get("lighting_evaluated", True)
+    lighting_class = coefficients.calculate_class(results["redcil"], coef["factor_i_lighting"]) if lighting_evaluated else "-"
 
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        class_badge(t("Classificação geral"), general_class)
-    with col2:
-        st.metric(t("RedCEP (Eq. 8.1)"), f"{results['redcep']:.1f} %")
-        st.caption(f"CRCEPD-A = {coef['crcepd_a']:.2f}, i = {coef['factor_i']:.2f} %")
-    with col3:
-        class_badge(t("Envoltória"), envelope_class)
-    with col4:
-        st.metric(t("RedCgTT (Eq. C.I.10)"), f"{results['redcgtt']:.1f} %")
-        st.caption(f"CRCgTTD-A = {coef['crcgtt_d_a']:.2f}, i = {coef['factor_i_envelope']:.2f} %")
+    def limits_text(i):
+        return t("A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %", a=f"{3 * i:.1f}", b=f"{2 * i:.1f}", c=f"{i:.1f}")
 
-    i = coef["factor_i"]
-    st.write(t("Limites da Tabela 8.2: A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %.",
-               a=f"{3 * i:.1f}", b=f"{2 * i:.1f}", c=f"{i:.1f}"))
+    col_general, col_partial = st.columns([2, 5])
+    with col_general:
+        class_badge(t("Classificação geral"), general_class, "large")
+        st.markdown(f"<div style='text-align:center;font-size:1.6rem;font-weight:600;margin-top:0.4rem'>RedCEP {results['redcep']:.1f} %</div>",
+                    unsafe_allow_html=True)
+        st.caption(t("Eq. 8.1, Tabela 8.2. CRCEPD-A = {crc:.2f}, i = {i:.2f} %. Limites: {limits}.",
+                     crc=coef["crcepd_a"], i=coef["factor_i"], limits=limits_text(coef["factor_i"])))
+    with col_partial:
+        st.markdown(f"**{t('Classificações parciais dos sistemas')}**")
+        partial = [
+            (t("Envoltória"), envelope_class, f"RedCgTT {results['redcgtt']:.1f} %",
+             t("Eq. C.I.10, Tabela 8.4. CRCgTTD-A = {crc:.2f}, i = {i:.2f} %.", crc=coef["crcgtt_d_a"], i=coef["factor_i_envelope"])),
+            (t("Condicionamento de ar"), air_conditioning_class, f"RedCR {results['redcr']:.1f} %",
+             t("Eq. B.II.1, Tabela 8.6. CRCRD-A = {crc:.2f}, i = {i:.2f} %.", crc=coef["crcr_d_a"], i=coef["factor_i_air_conditioning"])),
+            (t("Iluminação"), lighting_class, f"RedCIL {results['redcil']:.1f} %" if lighting_evaluated else t("Não avaliado"),
+             t("Eq. B.III.1, Tabela 8.8. DPIL A = 7,5 e D = 15,5 W/m² (Tabela B.III.2), i = {i:.2f} %.", i=coef["factor_i_lighting"])
+             if lighting_evaluated else t("O gbXML não tem DPI de projeto e o sistema de iluminação não foi avaliado.")),
+        ]
+        for column, (label, value, reduction, note) in zip(st.columns(3), partial):
+            with column:
+                class_badge(label, value, "small")
+                st.markdown(f"<div style='text-align:center;font-size:1rem;margin-top:0.3rem'>{reduction}</div>", unsafe_allow_html=True)
+                st.caption(note)
 
     rows = [
         ("Carga térmica de refrigeração CgTR", "cgtr"),
@@ -855,6 +852,10 @@ def main():
         {indicator: t("Classificação geral"), value: general_class},
         {indicator: "RedCgTT (%)", value: round(results["redcgtt"], 2)},
         {indicator: t("Classificação da envoltória"), value: envelope_class},
+        {indicator: "RedCR (%)", value: round(results["redcr"], 2)},
+        {indicator: t("Classificação do condicionamento de ar"), value: air_conditioning_class},
+        {indicator: "RedCIL (%)", value: round(results["redcil"], 2) if lighting_evaluated else "-"},
+        {indicator: t("Classificação da iluminação"), value: lighting_class},
     ])
     d1, d2, d3, d4 = st.columns(4)
     d1.download_button(t("Modelo real (.osm)"), Path(st.session_state["real_osm"]).read_bytes(), file_name="modelo_real.osm")
