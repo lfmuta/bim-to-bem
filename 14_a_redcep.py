@@ -154,7 +154,8 @@ def calculate_consumption(csv_path: Path, ceer: float, ceea: float) -> dict:
 
 def calculate_cep_and_redcep(real: dict, ref: dict, real_areas: dict = None, ref_areas: dict = None) -> dict:
     """
-    Calculates CEP (Equations 8.2 and 8.3), RedCEP (Equation 8.1) and RedCgTT (Equation C.I.10).
+    Calculates CEP (Equations 8.2 and 8.3), RedCEP (Equation 8.1), RedCgTT (Equation C.I.10),
+    RedCR (Equation B.II.1) and RedCIL (Equation B.III.1).
     Equipment consumption is removed from both models in RedCEP, as required by Equation 8.1.
     """
     fce = PRIMARY_ENERGY_FACTOR_BRAZIL
@@ -162,8 +163,13 @@ def calculate_cep_and_redcep(real: dict, ref: dict, real_areas: dict = None, ref
     real_without_eq = real["cep"] - real["ceq"] * fce
     redcep = ((ref_without_eq - real_without_eq) / ref_without_eq) * 100 if ref_without_eq > 0 else 0.0
     redcgtt = ((ref["cgtt"] - real["cgtt"]) / ref["cgtt"]) * 100 if ref["cgtt"] > 0 else 0.0
+    # Air conditioning system: Equation B.II.1, with the reference consumption from the reference load and CEER 3.24
+    redcr = ((ref["cr"] - real["cr"]) / ref["cr"]) * 100 if ref["cr"] > 0 else 0.0
+    # Lighting system: Equation B.III.1
+    redcil = ((ref["cil"] - real["cil"]) / ref["cil"]) * 100 if ref["cil"] > 0 else 0.0
 
-    results = {"real_model": dict(real), "reference_model": dict(ref), "redcep": redcep, "redcgtt": redcgtt}
+    results = {"real_model": dict(real), "reference_model": dict(ref), "redcep": redcep, "redcgtt": redcgtt,
+               "redcr": redcr, "redcil": redcil}
     for key, model_results, areas in (("real_model", real, real_areas), ("reference_model", ref, ref_areas)):
         total_area = (areas or {}).get("total") or (areas or {}).get("conditioned")
         results[key]["total_area"] = total_area
