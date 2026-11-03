@@ -15,6 +15,28 @@ class GBXMLConverter:
             level=logging.INFO
         )
 
+    def assign_one_zone_per_space(self, model):
+        """
+        Gives each space its own thermal zone (INI-C item C.I.3). Revit puts every space without an HVAC zone in a
+        single default zone, which would turn the whole building into one thermal zone. Spaces joined by air
+        surfaces are merged again later by script 10.
+        Returns the number of thermal zones created.
+        """
+        created = 0
+        for zone in list(model.getThermalZones()):
+            spaces = sorted(zone.spaces(), key=lambda space: space.nameString())
+            if len(spaces) <= 1:
+                continue
+            zone_name = zone.nameString()
+            for space in spaces:
+                new_zone = openstudio.model.ThermalZone(model)
+                new_zone.setName(f"{space.nameString()} Thermal Zone")
+                space.setThermalZone(new_zone)
+                created += 1
+            zone.remove()
+            logging.info(f"Zone '{zone_name}' with {len(spaces)} spaces split into one zone per space.")
+        return created
+
     def convert(self, gbxml_path, osm_path):
         """Convert GBXML to OSM."""
         temp_path = None
@@ -29,6 +51,9 @@ class GBXMLConverter:
             if not gbxml_model.is_initialized():
                 raise RuntimeError("Failed to initialize OpenStudio Model")
             model = gbxml_model.get()
+            split_count = self.assign_one_zone_per_space(model)
+            if split_count:
+                print(f"Thermal zones created so that each space has its own zone: {split_count}")
             model.save(openstudio.toPath(osm_path), True)
             logging.info(f"Conversion successful: {osm_path}")
             return True
