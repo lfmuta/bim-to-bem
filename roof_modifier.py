@@ -70,27 +70,37 @@ class RoofConstructionModifier:
             outside_face = dict(self.reference_outside_face)
         return builder.get(outside_face, inside_face)
 
+    def is_target_surface_type(self, surface):
+        """Selects the roofs (surface type RoofCeiling exposed to the outdoors), whatever the construction name exported by Revit."""
+        return surface.surfaceType() == "RoofCeiling" and surface.outsideBoundaryCondition() == "Outdoors"
+
     def get_target_surfaces_by_construction_name(self, model):
-        """Identifies surfaces with constructions containing target terms."""
+        """Identifies target surfaces by surface type or by construction names containing target terms."""
         target_surfaces = []
         
         for surf in model.getSurfaces():
             construction_opt = surf.construction()
-            
-            if not construction_opt.is_initialized():
+            construction = construction_opt.get() if construction_opt.is_initialized() else None
+            if construction is not None and construction.to_ConstructionAirBoundary().is_initialized():
                 continue
-            
-            construction = construction_opt.get()
+
+            if self.is_target_surface_type(surf):
+                target_surfaces.append(surf)
+                self.log(f"Found target surface '{surf.nameString()}' by surface type")
+                continue
+
+            if construction is None:
+                continue
             construction_name = construction.nameString()
-            
+
             # Check if construction name contains any of the target terms (case-sensitive)
             for term in self.target_construction_terms:
                 if term in construction_name:
                     target_surfaces.append(surf)
                     self.log(f"Found target surface '{surf.nameString()}' with construction '{construction_name}' containing term '{term}'")
                     break
-        
-        self.log(f"{len(target_surfaces)} surfaces found with target construction names")
+
+        self.log(f"{len(target_surfaces)} target surfaces found")
         return target_surfaces
 
     def assign_roof_construction(self, model, construction):
@@ -112,9 +122,11 @@ class RoofConstructionModifier:
             # Check if there are target surfaces before creating materials
             target_surfaces = self.get_target_surfaces_by_construction_name(model)
             if len(target_surfaces) == 0:
-                print("No surfaces found with target construction names (Roof).")
+                print("No roof surfaces exposed to the outdoors found. Model saved without changes.")
                 self.log("No target surfaces found for modification.")
-                return False
+                if not model.save(openstudio.path(output_path), True):
+                    raise IOError(f"Failed to save model: {output_path}")
+                return True
 
             self.log("Creating INI-C roof materials and construction.")
             materials = self.create_inic_roof_materials(model)
