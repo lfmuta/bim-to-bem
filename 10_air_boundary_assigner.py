@@ -8,6 +8,10 @@ from tkinter import Tk, filedialog
 
 from spacetype_utils import get_space_type_label
 
+
+# Names of the air surface construction exported by Revit in English, Portuguese and Spanish
+AIR_SURFACE_NAME_TERMS = ("air", "superfície de ar", "superficie de ar")
+
 class OSMAirBoundarySetter:
     """
     Identifies air boundary surfaces (ConstructionAirBoundary or constructions whose names contain "Air")
@@ -58,7 +62,8 @@ class OSMAirBoundarySetter:
         construction = construction_opt.get()
         if construction.to_ConstructionAirBoundary().is_initialized():
             return True
-        return "air" in construction.nameString().lower()
+        name = construction.nameString().lower()
+        return any(term in name for term in AIR_SURFACE_NAME_TERMS)
 
     def _zone_label(self, zone):
         labels = [get_space_type_label(space) for space in zone.spaces()]
