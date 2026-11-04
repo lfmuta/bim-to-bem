@@ -1,5 +1,5 @@
-openstudio==3.9.0
-streamlit==1.66.0
-pandas==3.0.5
+openstudio==3.11.0
+streamlit==1.66.1
+pandas==3.1.0
 beautifulsoup4==4.15.0
 plotly==7.1.0
