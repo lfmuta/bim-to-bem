@@ -11,7 +11,7 @@ import tempfile
 import types
 import xml.etree.ElementTree as ET
 import zipfile
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import openstudio
@@ -88,6 +88,9 @@ OUTPUT_VARIABLES = [
     "Zone Electric Equipment Electricity Energy",
     "Zone People Occupant Count",
 ]
+WORK_ROOT = Path(tempfile.gettempdir()) / "inic_gbxml"
+WORK_DIR_MAX_AGE_HOURS = 12
+SIMULATION_LEFTOVERS = ("eplusout.sql", "eplusout.eso", "eplusout.mtr", "data_point.zip", "pre-preprocess.idf", "in.osm")
 EDUCATION_LEVELS = {
     "Ensino fundamental e médio (1,5 m²/pessoa)": 1.5,
     "Ensino superior (1,5 m²/pessoa)": 1.5,
@@ -120,14 +123,12 @@ TRANSLATIONS = {
     "Arquivo gbXML exportado do Revit": "gbXML file exported from Revit",
     "Arquivo climático (.epw)": "Weather file (.epw)",
     "2. Iluminação": "2. Lighting",
-    "3. Modelo real": "3. Real model",
-    "Processar gbXML e gerar o modelo real": "Process gbXML and build the real model",
-    "Modelo real gerado.": "Real model built.",
+    "3. Processamento": "3. Processing",
+    "Gerar os modelos, simular e classificar": "Build the models, simulate and rate",
     "4. Geometria do modelo real": "4. Real model geometry",
     "Arraste para girar, role para aproximar e passe o mouse para ver o elemento. Clique em um item da legenda para esconder ou mostrar esse elemento. No modelo de referência, os sombreamentos de fachada (brises, beirais, marquises) são retirados automaticamente e o entorno é mantido (item C.I.4).":
         "Drag to rotate, scroll to zoom and hover to see the element. Click a legend item to hide or show that element. In the reference model, facade shading devices (louvers, overhangs, canopies) are removed automatically and the surroundings are kept (item C.I.4).",
-    "5. Simulação e classificação": "5. Simulation and rating",
-    "Gerar referência, simular e classificar": "Build reference, simulate and rate",
+    "5. Classificação": "5. Rating",
     "CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias (simulados: {simulated}). Fator de energia primária fcE = {fce}. O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).":
         "Real CEER {ceer:.2f}, reference CEER {ceer_ref}. Lighting and equipment adjusted to {days} days (simulated: {simulated}). Primary energy factor fcE = {fce}. RedCEP excludes the equipment consumption of both models (Eq. 8.1).",
     "6. Arquivos para conferência": "6. Files for checking",
@@ -520,19 +521,80 @@ def prepare_simulation(osm_path, epw_path, sim_dir, engine):
     return energyplus_runner.translate_to_idf(model_path, epw_path, sim_dir / "run")
 
 
-def run_simulations(engine, executable, jobs, epw_path):
-    """Runs both models in parallel, with the OpenStudio CLI (jobs are OSW files) or directly in EnergyPlus (jobs are IDF files)."""
+def start_simulation(engine, executable, job, epw_path):
+    """Starts one simulation, with the OpenStudio CLI (job is an OSW file) or directly in EnergyPlus (job is an IDF file)."""
     if engine == "cli":
-        processes = {name: subprocess.Popen([executable, "run", "-w", str(job)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                     for name, job in jobs.items()}
-    else:
-        processes = {name: energyplus_runner.start_simulation(executable, job, epw_path, Path(job).parent)
-                     for name, job in jobs.items()}
+        return subprocess.Popen([executable, "run", "-w", str(job)], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    return energyplus_runner.start_simulation(executable, job, epw_path, Path(job).parent)
+
+
+def wait_simulations(processes):
     results = {}
     for name, process in processes.items():
         stdout, stderr = process.communicate()
         results[name] = (process.returncode, stdout, stderr)
     return results
+
+
+def run_reference_and_simulation(work_dir, epw_file, engine, executable, lighting_app_only, lighting_mode,
+                                 ceer_real, ceea_real, bioclimatic_zone):
+    """Builds the reference model from the real one, simulates both models and stores the rating results."""
+    epw_path = work_dir / "clima.epw"
+    epw_path.write_bytes(epw_file.getvalue())
+    if engine == "energyplus" and not executable:
+        with st.spinner(t("Baixando o EnergyPlus (só na primeira vez)...")):
+            try:
+                executable = energyplus_runner.install_energyplus()
+            except Exception as error:
+                st.error(t("Não foi possível baixar o EnergyPlus: {error}", error=error))
+                st.stop()
+    # The real model simulation starts first and runs while the reference model is built.
+    processes = {}
+    try:
+        job = prepare_simulation(st.session_state["real_osm"], epw_path, work_dir / "simulacao_real", engine)
+    except Exception as error:
+        st.error(t("Falha ao preparar a simulação: {error}", error=error))
+        st.stop()
+    processes["real"] = start_simulation(engine, executable, job, epw_path)
+    with st.spinner(t("Gerando o modelo de referência...")):
+        try:
+            ref_osm = build_reference_model(st.session_state["real_osm"], work_dir, lighting_app_only)
+            job = prepare_simulation(ref_osm, epw_path, work_dir / "simulacao_referencia", engine)
+        except BaseException as error:
+            # run_step stops the script with a non-Exception signal; the running simulation must not be left behind.
+            processes["real"].kill()
+            if not isinstance(error, Exception):
+                raise
+            st.error(t("Falha ao preparar a simulação: {error}", error=error))
+            st.stop()
+    processes["referencia"] = start_simulation(engine, executable, job, epw_path)
+    with st.spinner(t("Simulando os dois modelos no EnergyPlus (pode levar vários minutos)...")):
+        outcome = wait_simulations(processes)
+    model_names = {"real": t("real"), "referencia": t("de referência")}
+    for name, (code, stdout, stderr) in outcome.items():
+        if code != 0:
+            st.error(t("A simulação do modelo {name} falhou.", name=model_names[name]))
+            err_file = work_dir / f"simulacao_{name}" / "run" / "eplusout.err"
+            st.code((stdout + "\n" + stderr)[-3000:])
+            if err_file.exists():
+                severe = [line for line in err_file.read_text(errors="ignore").splitlines() if "Severe" in line or "Fatal" in line]
+                st.code("\n".join(severe[:30]))
+            st.stop()
+
+    real_run = work_dir / "simulacao_real" / "run"
+    ref_run = work_dir / "simulacao_referencia" / "run"
+    ceea = ceea_real if ceea_real else 1.72 + 0.5 * ceer_real
+    with contextlib.redirect_stdout(io.StringIO()):
+        real = redcep.calculate_consumption(real_run / "eplusout.csv", ceer_real, ceea)
+        ref = redcep.calculate_consumption(ref_run / "eplusout.csv", CEER_REFERENCE, CEER_REFERENCE)
+        real_areas = redcep.extract_building_areas(real_run / "eplustbl.htm")
+        ref_areas = redcep.extract_building_areas(ref_run / "eplustbl.htm")
+    results = redcep.calculate_cep_and_redcep(real, ref, real_areas, ref_areas)
+    results["coefficients"] = coefficients.calculate_coefficients(bioclimatic_zone)
+    results["lighting_evaluated"] = lighting_mode != "reference"
+    st.session_state["results"] = results
+    st.session_state["ref_osm"] = ref_osm
+    remove_large_leftovers(work_dir)
 
 
 def class_badge(label, value, size="large"):
@@ -545,6 +607,39 @@ def class_badge(label, value, size="large"):
         f"width:{box};height:{box};line-height:{box};border-radius:0.5rem'>{value}</div></div>",
         unsafe_allow_html=True,
     )
+
+
+def new_work_dir(previous=None):
+    """Creates the folder of a new upload, removing the previous folder of this session and folders left by old sessions."""
+    WORK_ROOT.mkdir(parents=True, exist_ok=True)
+    if previous:
+        shutil.rmtree(previous, ignore_errors=True)
+    limit = datetime.now() - timedelta(hours=WORK_DIR_MAX_AGE_HOURS)
+    for folder in WORK_ROOT.iterdir():
+        try:
+            created = datetime.strptime(folder.name[:15], "%Y%m%d_%H%M%S")
+        except ValueError:
+            continue
+        if created < limit:
+            shutil.rmtree(folder, ignore_errors=True)
+    # Unique name, so two uploads in the same second do not share a folder.
+    return Path(tempfile.mkdtemp(prefix=datetime.now().strftime("%Y%m%d_%H%M%S_"), dir=WORK_ROOT))
+
+
+def clear_outputs(work_dir):
+    for name in ("real", "referencia", "simulacao_real", "simulacao_referencia"):
+        shutil.rmtree(work_dir / name, ignore_errors=True)
+
+
+def remove_large_leftovers(work_dir):
+    """Deletes the intermediate models and the simulation files that the results and downloads do not use."""
+    for pattern in ("real/real_step*.osm", "referencia/ref_step*.osm"):
+        for file in work_dir.glob(pattern):
+            file.unlink(missing_ok=True)
+    for folder in ("simulacao_real", "simulacao_referencia"):
+        shutil.rmtree(work_dir / folder / "reports", ignore_errors=True)
+        for name in SIMULATION_LEFTOVERS:
+            (work_dir / folder / "run" / name).unlink(missing_ok=True)
 
 
 def zip_folder(folder):
@@ -636,8 +731,7 @@ def main():
         st.stop()
 
     if st.session_state.get("gbxml_name") != gbxml_file.name or "work_dir" not in st.session_state:
-        work_dir = Path(tempfile.gettempdir()) / "inic_gbxml" / datetime.now().strftime("%Y%m%d_%H%M%S")
-        work_dir.mkdir(parents=True, exist_ok=True)
+        work_dir = new_work_dir(st.session_state.get("work_dir"))
         gbxml_path = work_dir / "entrada.xml"
         gbxml_path.write_bytes(gbxml_file.getvalue())
         for key in ("real_osm", "ref_osm", "geometry", "results", "log", "missing_enclosure"):
@@ -689,12 +783,21 @@ def main():
         else:
             lighting_mode, dpi_value, lighting_app_only = "reference", None, True
 
-    st.header(t("3. Modelo real"))
+    st.header(t("3. Processamento"))
     if ceer_real is None:
         st.info(t("Informe o CEER do sistema de projeto na barra lateral."))
         st.stop()
+    if epw_file is None:
+        st.info(t("Envie o arquivo climático (.epw) para simular."))
+        st.stop()
+    if engine == "cli" and not executable:
+        st.error(t("Informe o caminho do openstudio.exe na barra lateral."))
+        st.stop()
 
-    if st.button(t("Processar gbXML e gerar o modelo real"), type="primary", key="build_real"):
+    if st.button(t("Gerar os modelos, simular e classificar"), type="primary", key="run_all"):
+        for key in ("real_osm", "ref_osm", "geometry", "results", "missing_enclosure"):
+            st.session_state.pop(key, None)
+        clear_outputs(work_dir)
         st.session_state["log"] = []
         with st.spinner(t("Processando etapas 00 a 10...")):
             real_osm = build_real_model(gbxml_path, work_dir, area_per_person, lighting_mode, dpi_value,
@@ -702,12 +805,13 @@ def main():
         st.session_state["real_osm"] = real_osm
         st.session_state["geometry"] = model_geometry(real_osm)
         st.session_state["missing_enclosure"] = spaces_missing_enclosure(real_osm)
-        st.session_state.pop("results", None)
+        if not st.session_state["missing_enclosure"]:
+            run_reference_and_simulation(work_dir, epw_file, engine, executable, lighting_app_only, lighting_mode,
+                                         ceer_real, ceea_real, bioclimatic_zone)
 
     if "real_osm" not in st.session_state:
         st.stop()
 
-    st.success(t("Modelo real gerado."))
     with st.expander(t("Registro das etapas")):
         st.code("\n\n".join(st.session_state.get("log", [])))
 
@@ -728,64 +832,10 @@ def main():
                    "telhado aparece no modelo 3D como sombreamento, é sinal de que ele não está delimitando os ambientes."))
         st.stop()
 
-    st.header(t("5. Simulação e classificação"))
-    if epw_file is None:
-        st.info(t("Envie o arquivo climático (.epw) para simular."))
-        st.stop()
-    if engine == "cli" and not executable:
-        st.error(t("Informe o caminho do openstudio.exe na barra lateral."))
-        st.stop()
-
-    if st.button(t("Gerar referência, simular e classificar"), type="primary", key="simulate"):
-        epw_path = work_dir / "clima.epw"
-        epw_path.write_bytes(epw_file.getvalue())
-        with st.spinner(t("Gerando o modelo de referência...")):
-            ref_osm = build_reference_model(st.session_state["real_osm"], work_dir, lighting_app_only)
-        if engine == "energyplus" and not executable:
-            with st.spinner(t("Baixando o EnergyPlus (só na primeira vez)...")):
-                try:
-                    executable = energyplus_runner.install_energyplus()
-                except Exception as error:
-                    st.error(t("Não foi possível baixar o EnergyPlus: {error}", error=error))
-                    st.stop()
-        with st.spinner(t("Simulando os dois modelos no EnergyPlus (pode levar vários minutos)...")):
-            try:
-                jobs = {
-                    "real": prepare_simulation(st.session_state["real_osm"], epw_path, work_dir / "simulacao_real", engine),
-                    "referencia": prepare_simulation(ref_osm, epw_path, work_dir / "simulacao_referencia", engine),
-                }
-            except Exception as error:
-                st.error(t("Falha ao preparar a simulação: {error}", error=error))
-                st.stop()
-            outcome = run_simulations(engine, executable, jobs, epw_path)
-        model_names = {"real": t("real"), "referencia": t("de referência")}
-        for name, (code, stdout, stderr) in outcome.items():
-            if code != 0:
-                st.error(t("A simulação do modelo {name} falhou.", name=model_names[name]))
-                err_file = work_dir / f"simulacao_{name}" / "run" / "eplusout.err"
-                st.code((stdout + "\n" + stderr)[-3000:])
-                if err_file.exists():
-                    severe = [line for line in err_file.read_text(errors="ignore").splitlines() if "Severe" in line or "Fatal" in line]
-                    st.code("\n".join(severe[:30]))
-                st.stop()
-
-        real_run = work_dir / "simulacao_real" / "run"
-        ref_run = work_dir / "simulacao_referencia" / "run"
-        ceea = ceea_real if ceea_real else 1.72 + 0.5 * ceer_real
-        with contextlib.redirect_stdout(io.StringIO()):
-            real = redcep.calculate_consumption(real_run / "eplusout.csv", ceer_real, ceea)
-            ref = redcep.calculate_consumption(ref_run / "eplusout.csv", CEER_REFERENCE, CEER_REFERENCE)
-            real_areas = redcep.extract_building_areas(real_run / "eplustbl.htm")
-            ref_areas = redcep.extract_building_areas(ref_run / "eplustbl.htm")
-        results = redcep.calculate_cep_and_redcep(real, ref, real_areas, ref_areas)
-        results["coefficients"] = coefficients.calculate_coefficients(bioclimatic_zone)
-        results["lighting_evaluated"] = lighting_mode != "reference"
-        st.session_state["results"] = results
-        st.session_state["ref_osm"] = ref_osm
-
     if "results" not in st.session_state:
         st.stop()
 
+    st.header(t("5. Classificação"))
     results = st.session_state["results"]
     coef = results["coefficients"]
     general_class = coefficients.calculate_class(results["redcep"], coef["factor_i"])
