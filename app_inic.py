@@ -116,7 +116,6 @@ TRANSLATIONS = {
     "Referência: sombreamento de fachada": "Reference: facade shading",
     "Referência: DPI 15,5 W/m²": "Reference: LPD 15.5 W/m²",
     "Referência: infiltração por frestas": "Reference: crack infiltration",
-    "Indicador (kWh/ano)": "Indicator (kWh/year)",
     "Tipologia educacional. Portaria Inmetro 309/2022, Anexo C.I.":
         "Educational building typology. Inmetro Ordinance 309/2022, Annex C.I.",
     "1. Arquivos de entrada": "1. Input files",
@@ -131,7 +130,27 @@ TRANSLATIONS = {
     "5. Classificação": "5. Rating",
     "CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias (simulados: {simulated}). Fator de energia primária fcE = {fce}. O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).":
         "Real CEER {ceer:.2f}, reference CEER {ceer_ref}. Lighting and equipment adjusted to {days} days (simulated: {simulated}). Primary energy factor fcE = {fce}. RedCEP excludes the equipment consumption of both models (Eq. 8.1).",
-    "6. Arquivos para conferência": "6. Files for checking",
+    "6. Arquivos": "6. Files",
+    "Mostrar arquivos": "Show files",
+    "Etiqueta de eficiência energética": "Energy efficiency label",
+    "Edificações comerciais, de serviços e públicas": "Commercial, service and public buildings",
+    "Método de simulação da INI-C. Portaria Inmetro 309/2022, Anexo C.I.": "INI-C simulation method. Inmetro Ordinance 309/2022, Annex C.I.",
+    "Intensidade de uso de energia primária do modelo real": "Primary energy use intensity of the real model",
+    "Refrigeração": "Cooling",
+    "Aquecimento": "Heating",
+    "Equipamentos": "Equipment",
+    "Total": "Total",
+    "Uso final ({unit})": "End use ({unit})",
+    "Diferença": "Difference",
+    "Eq. 8.1, sem equipamentos na base": "Eq. 8.1, equipment excluded from the base",
+    "kWh/m².ano": "kWh/m².year",
+    "kWh/ano": "kWh/year",
+    "Valores em energia primária (fcE = {fce}) por área total construída ({area} m²). A diferença do total inclui os equipamentos; o RedCEP os desconta da base (Eq. 8.1).":
+        "Values in primary energy (fcE = {fce}) per total floor area ({area} m²). The total difference includes equipment; RedCEP excludes it from the base (Eq. 8.1).",
+    "Modelo real (kWh/ano)": "Real model (kWh/year)",
+    "Modelo real (kWh/m².ano)": "Real model (kWh/m².year)",
+    "Modelo de referência (kWh/ano)": "Reference model (kWh/year)",
+    "Modelo de referência (kWh/m².ano)": "Reference model (kWh/m².year)",
     "Indicador": "Indicator",
     "Valor": "Value",
     "Modelo real (.osm)": "Real model (.osm)",
@@ -597,6 +616,111 @@ def run_reference_and_simulation(work_dir, epw_file, engine, executable, lightin
     remove_large_leftovers(work_dir)
 
 
+def _difference_html(reference, real, decimals=2):
+    difference = reference - real
+    percent = 100 * difference / reference if reference else 0.0
+    if abs(difference) < 0.005:
+        return f"<span style='color:#7f8c8d'>= 0.00 ({0:+.1f} %)</span>"
+    arrow, color = ("&#8595;", "#27ae60") if difference > 0 else ("&#8593;", "#c0392b")
+    return f"<span style='color:{color};font-weight:600'>{arrow} {abs(difference):.{decimals}f} ({-percent:+.1f} %)</span>"
+
+
+def energy_label(results, general_class):
+    """Shows the rating in the layout of the INI-C energy label: class scale, overall class, energy use intensity
+    of the real model and the comparison of each end use between the reference and real models."""
+    fce = redcep.PRIMARY_ENERGY_FACTOR_BRAZIL
+    real, ref = results["real_model"], results["reference_model"]
+    real_area = real.get("total_area") or 0
+    ref_area = ref.get("total_area") or real_area
+    if not real_area or not ref_area:
+        return False
+    unit = t("kWh/m².ano")
+    annual_unit = t("kWh/ano")
+    components = [("Refrigeração", "cr", "#4FC3F7"), ("Aquecimento", "cae", "#EF5350"),
+                  ("Iluminação", "cil", "#FFD54F"), ("Equipamentos", "ceq", "#FF8A65")]
+    rows = []
+    for label, key, color in components:
+        real_eui = real[key] * fce / real_area
+        ref_eui = ref[key] * fce / ref_area
+        if key == "cae" and real_eui == 0 and ref_eui == 0:
+            continue
+        rows.append((t(label), ref_eui, real_eui, color, ref[key] * fce, real[key] * fce))
+    ref_total = sum(row[1] for row in rows)
+    real_total = sum(row[2] for row in rows)
+    ref_annual = sum(row[4] for row in rows)
+    real_annual = sum(row[5] for row in rows)
+
+    def kwh(value):
+        return f"{value:,.0f}".replace(",", " ")
+
+    def both_units(per_area, annual):
+        return (f"{per_area:.2f}<div style='font-size:0.75rem;color:#7f8c8d;font-weight:400'>"
+                f"{kwh(annual)} {annual_unit}</div>")
+
+    scale = ""
+    for index, letter in enumerate(CLASS_COLORS):
+        selected = letter == general_class
+        text_color = "#000000" if letter in ("B", "C", "D") else "#FFFFFF"
+        scale += (f"<div style='display:flex;align-items:center;margin:7px 0;opacity:{1 if selected else 0.35}'>"
+                  f"<div style='background:{CLASS_COLORS[letter]};color:{text_color};font-weight:700;font-size:1.5rem;"
+                  f"height:42px;line-height:42px;width:{95 + 28 * index}px;padding-left:14px;box-sizing:border-box;"
+                  f"clip-path:polygon(0 0,calc(100% - 21px) 0,100% 50%,calc(100% - 21px) 100%,0 100%)'>{letter}</div>"
+                  + ("<div style='margin-left:10px;font-size:1.4rem;color:#2c3e50'>&#9664;</div>" if selected else "")
+                  + "</div>")
+
+    bars = ""
+    for label, _, real_eui, color, _, _ in rows:
+        share = 100 * real_eui / real_total if real_total else 0
+        bars += (f"<div style='margin:10px 0 4px;display:flex;justify-content:space-between;font-size:0.8rem'>"
+                 f"<span style='font-weight:700;text-transform:uppercase'>{label} &middot; {share:.1f} %</span>"
+                 f"<span style='color:#7f8c8d'>{real_eui:.2f} {unit}</span></div>"
+                 f"<div style='background:#e9ecef;height:16px'><div style='background:{color};height:16px;width:{share:.1f}%'></div></div>")
+
+    general_color = CLASS_COLORS.get(general_class, "#BDBDBD")
+    general_text = "#000000" if general_class in ("B", "C", "D") else "#FFFFFF"
+    header_cell = "padding:10px 12px;background:#34495e;color:#ffffff;text-align:center;font-weight:600"
+    cell = "padding:9px 12px;text-align:center;border-bottom:1px solid #e0e0e0"
+    table_rows = ""
+    for position, (label, ref_eui, real_eui, _, ref_kwh, real_kwh) in enumerate(rows):
+        background = "#f4f6f8" if position % 2 else "#ffffff"
+        table_rows += (f"<tr style='background:{background}'><td style='{cell}'>{label}</td><td style='{cell}'>{both_units(ref_eui, ref_kwh)}</td>"
+                       f"<td style='{cell}'>{both_units(real_eui, real_kwh)}</td><td style='{cell}'>{_difference_html(ref_eui, real_eui)}</td></tr>")
+    table_rows += (f"<tr style='background:#e8f5e9;font-weight:700'><td style='{cell}'>{t('Total')}</td>"
+                   f"<td style='{cell}'>{both_units(ref_total, ref_annual)}</td><td style='{cell}'>{both_units(real_total, real_annual)}</td>"
+                   f"<td style='{cell}'>{_difference_html(ref_total, real_total)}</td></tr>")
+    table_rows += (f"<tr style='background:#fff8e1;font-weight:700'><td style='{cell}'>RedCEP</td><td style='{cell}'>-</td>"
+                   f"<td style='{cell}'>{results['redcep']:.2f} %</td>"
+                   f"<td style='{cell};font-weight:400'>{t('Eq. 8.1, sem equipamentos na base')}</td></tr>")
+
+    st.markdown(
+        f"<div style='background:#ffffff;color:#2c3e50;border:1px solid #d0d7de;max-width:980px;margin:0 auto 1rem'>"
+        f"<div style='background:#2c3e50;color:#ffffff;text-align:center;padding:18px 12px'>"
+        f"<div style='font-size:1.35rem;font-weight:700;letter-spacing:0.04em;text-transform:uppercase'>{t('Etiqueta de eficiência energética')}</div>"
+        f"<div style='font-size:0.9rem;margin-top:6px'>{t('Edificações comerciais, de serviços e públicas')}</div>"
+        f"<div style='font-size:0.75rem;margin-top:6px;opacity:0.75'>{t('Método de simulação da INI-C. Portaria Inmetro 309/2022, Anexo C.I.')}</div></div>"
+        f"<div style='display:flex;flex-wrap:wrap;gap:24px;padding:22px'>"
+        f"<div style='flex:1 1 260px;display:flex;flex-direction:column;justify-content:center'>{scale}</div>"
+        f"<div style='flex:1 1 300px'>"
+        f"<div style='background:#f4f6f8;padding:16px;text-align:center'>"
+        f"<div style='font-size:0.8rem;font-weight:700;text-transform:uppercase;color:#5d6d7e'>{t('Classificação geral')}</div>"
+        f"<div style='display:inline-block;background:{general_color};color:{general_text};font-size:4rem;font-weight:700;"
+        f"width:6rem;height:6rem;line-height:6rem;margin:10px 0'>{general_class}</div>"
+        f"<div style='background:#e8f5e9;padding:8px;margin:0 auto;max-width:200px'><div style='font-size:0.7rem;color:#5d6d7e'>RedCEP</div>"
+        f"<div style='font-size:1.5rem;font-weight:700'>{results['redcep']:.2f} %</div></div></div>"
+        f"<div style='background:#f4f6f8;padding:12px 16px;margin-top:14px'>"
+        f"<div style='text-align:center;font-size:0.8rem;font-weight:700;text-transform:uppercase;color:#5d6d7e'>"
+        f"{t('Intensidade de uso de energia primária do modelo real')}</div>{bars}</div>"
+        f"<div style='background:#2e64b5;color:#ffffff;text-align:center;padding:12px;margin-top:14px;font-weight:700'>"
+        f"{t('Total')}: {real_total:.2f} {unit}<div style='font-size:0.8rem;font-weight:400;margin-top:2px'>"
+        f"{kwh(real_annual)} {annual_unit}</div></div></div></div>"
+        f"<div style='padding:0 22px 22px;overflow-x:auto'><table style='width:100%;border-collapse:collapse;font-size:0.9rem'>"
+        f"<tr><th style='{header_cell}'>{t('Uso final ({unit})', unit=unit)}</th><th style='{header_cell}'>{t('Modelo de referência')}</th>"
+        f"<th style='{header_cell}'>{t('Modelo real')}</th><th style='{header_cell}'>{t('Diferença')}</th></tr>{table_rows}</table></div></div>",
+        unsafe_allow_html=True,
+    )
+    return True
+
+
 def class_badge(label, value, size="large"):
     color = CLASS_COLORS.get(value, "#BDBDBD")
     text_color = "#000000" if value in ("C", "D", "B") else "#FFFFFF"
@@ -847,14 +971,16 @@ def main():
     def limits_text(i):
         return t("A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %", a=f"{3 * i:.1f}", b=f"{2 * i:.1f}", c=f"{i:.1f}")
 
-    col_general, col_partial = st.columns([2, 5])
-    with col_general:
+    if not energy_label(results, general_class):
         class_badge(t("Classificação geral"), general_class, "large")
         st.markdown(f"<div style='text-align:center;font-size:1.6rem;font-weight:600;margin-top:0.4rem'>RedCEP {results['redcep']:.1f} %</div>",
                     unsafe_allow_html=True)
-        st.caption(t("Eq. 8.1, Tabela 8.2. CRCEPD-A = {crc:.2f}, i = {i:.2f} %. Limites: {limits}.",
-                     crc=coef["crcepd_a"], i=coef["factor_i"], limits=limits_text(coef["factor_i"])))
-    with col_partial:
+    st.caption(t("Eq. 8.1, Tabela 8.2. CRCEPD-A = {crc:.2f}, i = {i:.2f} %. Limites: {limits}.",
+                 crc=coef["crcepd_a"], i=coef["factor_i"], limits=limits_text(coef["factor_i"])) + " " +
+               t("Valores em energia primária (fcE = {fce}) por área total construída ({area} m²). A diferença do total inclui os "
+                 "equipamentos; o RedCEP os desconta da base (Eq. 8.1).", fce=redcep.PRIMARY_ENERGY_FACTOR_BRAZIL,
+                 area=f"{results['real_model'].get('total_area') or 0:.0f}"))
+    with st.container():
         st.markdown(f"**{t('Classificações parciais dos sistemas')}**")
         partial = [
             (t("Envoltória"), envelope_class, f"RedCgTT {results['redcgtt']:.1f} %",
@@ -881,11 +1007,15 @@ def main():
         ("Consumo de energia elétrica CEE", "cee"),
         ("Consumo de energia primária CEP", "cep"),
     ]
-    indicator_column = t("Indicador (kWh/ano)")
+    indicator_column = t("Indicador")
+    real_area = results["real_model"].get("total_area") or 0
+    ref_area = results["reference_model"].get("total_area") or real_area
     table = pd.DataFrame({
         indicator_column: [t(label) for label, _ in rows],
-        t("Modelo real"): [round(results["real_model"][key], 1) for _, key in rows],
-        t("Modelo de referência"): [round(results["reference_model"][key], 1) for _, key in rows],
+        t("Modelo real (kWh/ano)"): [round(results["real_model"][key], 1) for _, key in rows],
+        t("Modelo real (kWh/m².ano)"): [round(results["real_model"][key] / real_area, 2) if real_area else None for _, key in rows],
+        t("Modelo de referência (kWh/ano)"): [round(results["reference_model"][key], 1) for _, key in rows],
+        t("Modelo de referência (kWh/m².ano)"): [round(results["reference_model"][key] / ref_area, 2) if ref_area else None for _, key in rows],
     })
     st.dataframe(table, width="stretch", hide_index=True)
     st.caption(t("CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias "
@@ -894,7 +1024,8 @@ def main():
                  ceer=results["real_model"]["ceer"], ceer_ref=CEER_REFERENCE, days=redcep.OCCUPATION_DAYS_LIGHTING_EQUIPMENT,
                  simulated=results["real_model"]["simulated_days"], fce=redcep.PRIMARY_ENERGY_FACTOR_BRAZIL))
 
-    st.header(t("6. Arquivos para conferência"))
+    st.header(t("6. Arquivos"))
+    files_section = st.expander(t("Mostrar arquivos"), expanded=False)
     indicator, value = t("Indicador"), t("Valor")
     summary = pd.DataFrame([
         {indicator: t("Zona bioclimática"), value: coef["bioclimatic_zone"]},
@@ -907,23 +1038,24 @@ def main():
         {indicator: "RedCIL (%)", value: round(results["redcil"], 2) if lighting_evaluated else "-"},
         {indicator: t("Classificação da iluminação"), value: lighting_class},
     ])
-    d1, d2, d3, d4 = st.columns(4)
-    d1.download_button(t("Modelo real (.osm)"), Path(st.session_state["real_osm"]).read_bytes(), file_name="modelo_real.osm")
-    d2.download_button(t("Modelo de referência (.osm)"), Path(st.session_state["ref_osm"]).read_bytes(), file_name="modelo_referencia.osm")
-    d3.download_button(t("Resultados (.csv)"),
-                       pd.concat([summary, table.rename(columns={indicator_column: indicator})]).to_csv(index=False).encode("utf-8-sig"),
-                       file_name="resultados_inic.csv")
-    d4.download_button(t("Tudo (.zip)"), zip_folder(work_dir), file_name="inic_gbxml_completo.zip")
+    with files_section:
+        d1, d2, d3, d4 = st.columns(4)
+        d1.download_button(t("Modelo real (.osm)"), Path(st.session_state["real_osm"]).read_bytes(), file_name="modelo_real.osm")
+        d2.download_button(t("Modelo de referência (.osm)"), Path(st.session_state["ref_osm"]).read_bytes(), file_name="modelo_referencia.osm")
+        d3.download_button(t("Resultados (.csv)"),
+                           pd.concat([summary, table.rename(columns={indicator_column: indicator})]).to_csv(index=False).encode("utf-8-sig"),
+                           file_name="resultados_inic.csv")
+        d4.download_button(t("Tudo (.zip)"), zip_folder(work_dir), file_name="inic_gbxml_completo.zip")
 
-    e1, e2 = st.columns(2)
-    for column, name, folder in ((e1, t("Simulação real"), "simulacao_real"), (e2, t("Simulação de referência"), "simulacao_referencia")):
-        run_dir = work_dir / folder / "run"
-        with column:
-            st.subheader(name)
-            for file_name in ("in.idf", "eplusout.csv", "eplustbl.htm", "eplusout.err"):
-                file_path = run_dir / file_name
-                if file_path.exists():
-                    st.download_button(file_name, file_path.read_bytes(), file_name=f"{folder}_{file_name}", key=f"{folder}_{file_name}")
+        e1, e2 = st.columns(2)
+        for column, name, folder in ((e1, t("Simulação real"), "simulacao_real"), (e2, t("Simulação de referência"), "simulacao_referencia")):
+            run_dir = work_dir / folder / "run"
+            with column:
+                st.subheader(name)
+                for file_name in ("in.idf", "eplusout.csv", "eplustbl.htm", "eplusout.err"):
+                    file_path = run_dir / file_name
+                    if file_path.exists():
+                        st.download_button(file_name, file_path.read_bytes(), file_name=f"{folder}_{file_name}", key=f"{folder}_{file_name}")
 
 
 if __name__ == "__main__":
