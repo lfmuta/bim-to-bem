@@ -116,20 +116,16 @@ TRANSLATIONS = {
     "Referência: sombreamento de fachada": "Reference: facade shading",
     "Referência: DPI 15,5 W/m²": "Reference: LPD 15.5 W/m²",
     "Referência: infiltração por frestas": "Reference: crack infiltration",
-    "Tipologia educacional. Portaria Inmetro 309/2022, Anexo C.I.":
-        "Educational building typology. Inmetro Ordinance 309/2022, Annex C.I.",
     "1. Arquivos de entrada": "1. Input files",
     "Arquivo gbXML exportado do Revit": "gbXML file exported from Revit",
     "Arquivo climático (.epw)": "Weather file (.epw)",
     "2. Iluminação": "2. Lighting",
+    "DPI de projeto encontrada no gbXML.": "Design LPD found in the gbXML.",
     "3. Processamento": "3. Processing",
     "Gerar os modelos, simular e classificar": "Build the models, simulate and rate",
     "4. Geometria do modelo real": "4. Real model geometry",
-    "Arraste para girar, role para aproximar e passe o mouse para ver o elemento. Clique em um item da legenda para esconder ou mostrar esse elemento. No modelo de referência, os sombreamentos de fachada (brises, beirais, marquises) são retirados automaticamente e o entorno é mantido (item C.I.4).":
-        "Drag to rotate, scroll to zoom and hover to see the element. Click a legend item to hide or show that element. In the reference model, facade shading devices (louvers, overhangs, canopies) are removed automatically and the surroundings are kept (item C.I.4).",
+    "Mostrar modelo 3D": "Show 3D model",
     "5. Classificação": "5. Rating",
-    "CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias (simulados: {simulated}). Fator de energia primária fcE = {fce}. O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).":
-        "Real CEER {ceer:.2f}, reference CEER {ceer_ref}. Lighting and equipment adjusted to {days} days (simulated: {simulated}). Primary energy factor fcE = {fce}. RedCEP excludes the equipment consumption of both models (Eq. 8.1).",
     "6. Arquivos": "6. Files",
     "Mostrar arquivos": "Show files",
     "Etiqueta de eficiência energética": "Energy efficiency label",
@@ -142,11 +138,8 @@ TRANSLATIONS = {
     "Total": "Total",
     "Uso final ({unit})": "End use ({unit})",
     "Diferença": "Difference",
-    "Eq. 8.1, sem equipamentos na base": "Eq. 8.1, equipment excluded from the base",
     "kWh/m².ano": "kWh/m².year",
     "kWh/ano": "kWh/year",
-    "Valores em energia primária (fcE = {fce}) por área total construída ({area} m²). A diferença do total inclui os equipamentos; o RedCEP os desconta da base (Eq. 8.1).":
-        "Values in primary energy (fcE = {fce}) per total floor area ({area} m²). The total difference includes equipment; RedCEP excludes it from the base (Eq. 8.1).",
     "Modelo real (kWh/ano)": "Real model (kWh/year)",
     "Modelo real (kWh/m².ano)": "Real model (kWh/m².year)",
     "Modelo de referência (kWh/ano)": "Reference model (kWh/year)",
@@ -164,18 +157,14 @@ TRANSLATIONS = {
     "Nível de ensino (Tabela A.2)": "Education level (Table A.2)",
     "CEER do sistema de condicionamento de ar do projeto (W/W)": "CEER of the design air conditioning system (W/W)",
     "O projeto possui sistema de aquecimento": "The design has a heating system",
-    "Motor de simulação": "Simulation engine",
     "Envie o arquivo gbXML para começar.": "Upload the gbXML file to start.",
     "Espaços do gbXML ({count})": "gbXML spaces ({count})",
     "{count} espaço(s) com spaceType fora do dicionário APP/APT (spacetype_utils.py). Eles recebem pessoas e equipamentos como APP, mas não recebem sistema de condicionamento. Revise no Revit.":
         "{count} space(s) with a spaceType outside the APP/APT dictionary (spacetype_utils.py). They receive people and equipment as APP, but no air conditioning system. Review them in Revit.",
-    "DPI de projeto encontrada no gbXML. Sistema de iluminação avaliado: modelo real com a DPI do gbXML, referência com {dpi} W/m² nos ambientes com iluminação (item C.I.4).":
-        "Design LPD found in the gbXML. Lighting system evaluated: real model with the gbXML LPD, reference with {dpi} W/m² in the spaces with lighting (item C.I.4).",
     "O gbXML não tem densidade de potência de iluminação (LightPowerPerArea). Escolha como seguir:":
         "The gbXML has no lighting power density (LightPowerPerArea). Choose how to proceed:",
     "Iluminação": "Lighting",
     "Informe o CEER do sistema de projeto na barra lateral.": "Enter the CEER of the design system in the sidebar.",
-    "Registro das etapas": "Processing log",
     "Envie o arquivo climático (.epw) para simular.": "Upload the weather file (.epw) to simulate.",
     "Informe o caminho do openstudio.exe na barra lateral.": "Enter the openstudio.exe path in the sidebar.",
     "real": "real",
@@ -203,9 +192,6 @@ TRANSLATIONS = {
     "Erro: {error}": "Error: {error}",
     "Equação C.I.8: para split e janela, 1,72 + 0,5 x CEER, ou dado do fabricante.":
         "Equation C.I.8: for split and window units, 1.72 + 0.5 x CEER, or manufacturer data.",
-    "EnergyPlus {version} pronto.": "EnergyPlus {version} ready.",
-    "EnergyPlus {version} será baixado na primeira simulação (cerca de 190 MB, uma única vez).":
-        "EnergyPlus {version} will be downloaded on the first simulation (about 190 MB, only once).",
     "Espaço": "Space",
     "Classificação": "Classification",
     "DPI gbXML (W/m²)": "gbXML LPD (W/m²)",
@@ -253,24 +239,10 @@ TRANSLATIONS = {
     "Condicionamento de ar": "Air conditioning",
     "Não avaliado": "Not evaluated",
     "Classificações parciais dos sistemas": "Partial ratings of the systems",
-    "A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %":
-        "A > {a} %, B > {b} %, C > {c} %, D from 0 to {c} %, E < 0 %",
-    "Eq. 8.1, Tabela 8.2. CRCEPD-A = {crc:.2f}, i = {i:.2f} %. Limites: {limits}.":
-        "Eq. 8.1, Table 8.2. CRCEPD-A = {crc:.2f}, i = {i:.2f} %. Limits: {limits}.",
-    "Eq. C.I.10, Tabela 8.4. CRCgTTD-A = {crc:.2f}, i = {i:.2f} %.":
-        "Eq. C.I.10, Table 8.4. CRCgTTD-A = {crc:.2f}, i = {i:.2f} %.",
-    "Eq. B.II.1, Tabela 8.6. CRCRD-A = {crc:.2f}, i = {i:.2f} %.":
-        "Eq. B.II.1, Table 8.6. CRCRD-A = {crc:.2f}, i = {i:.2f} %.",
-    "Eq. B.III.1, Tabela 8.8. DPIL A = 7,5 e D = 15,5 W/m² (Tabela B.III.2), i = {i:.2f} %.":
-        "Eq. B.III.1, Table 8.8. LPD limit A = 7.5 and D = 15.5 W/m² (Table B.III.2), i = {i:.2f} %.",
     "O gbXML não tem DPI de projeto e o sistema de iluminação não foi avaliado.":
         "The gbXML has no design LPD and the lighting system was not evaluated.",
-    "Este campo vale apenas para sistemas unitários. Sistemas centrais (por exemplo, com resfriadores de líquido) têm o CEER calculado pelo SPLV ou pelo fator K (item B.II.4.2), que não é tratado por esta ferramenta.":
-        "This field applies to unitary systems only. Central systems (for example, with chillers) have their CEER calculated from the SPLV or the K factor (item B.II.4.2), which this tool does not handle.",
     "Somente sistemas unitários (janela, split). CEER ponderado pela capacidade de refrigeração, Equação B.II.5: equipamentos inverter usam o IDRS da etiqueta Inmetro (corrigido pela Tabela B.II.1 nas zonas 2R, 4A, 4B, 5B e 6B) e equipamentos de rotação fixa usam 1,062 x CEE.":
         "Unitary systems only (window, split). CEER weighted by cooling capacity, Equation B.II.5: inverter units use the IDRS from the Inmetro label (corrected by Table B.II.1 in zones 2R, 4A, 4B, 5B and 6B) and fixed speed units use 1.062 x CEE.",
-    "Renovação de ar nas APPs, aplicada igualmente aos modelos real e de referência. Os valores iniciais são os da ABNT NBR 16401-3, Tabela 1, sala de aula, nível 1.":
-        "Outdoor air in long-stay spaces (APP), applied equally to the real and reference models. The initial values are those of ABNT NBR 16401-3, Table 1, classroom, level 1.",
 }
 CLASS_COLORS = {"A": "#00A651", "B": "#8CC63F", "C": "#FFF200", "D": "#FF9E1B", "E": "#ED1C24"}
 
@@ -690,7 +662,7 @@ def energy_label(results, general_class):
                    f"<td style='{cell}'>{_difference_html(ref_total, real_total)}</td></tr>")
     table_rows += (f"<tr style='background:#fff8e1;font-weight:700'><td style='{cell}'>RedCEP</td><td style='{cell}'>-</td>"
                    f"<td style='{cell}'>{results['redcep']:.2f} %</td>"
-                   f"<td style='{cell};font-weight:400'>{t('Eq. 8.1, sem equipamentos na base')}</td></tr>")
+                   f"<td style='{cell}'>-</td></tr>")
 
     st.markdown(
         f"<div style='background:#ffffff;color:#2c3e50;border:1px solid #d0d7de;max-width:980px;margin:0 auto 1rem'>"
@@ -791,7 +763,6 @@ def main():
         language_switch()
     with col_title:
         st.title(t("Classificação INI-C pelo método de simulação"))
-    st.caption(t("Tipologia educacional. Portaria Inmetro 309/2022, Anexo C.I."))
 
     with st.sidebar:
         st.header(t("Parâmetros"))
@@ -807,8 +778,6 @@ def main():
                                     help=t("Somente sistemas unitários (janela, split). CEER ponderado pela capacidade de refrigeração, "
                                            "Equação B.II.5: equipamentos inverter usam o IDRS da etiqueta Inmetro (corrigido pela "
                                            "Tabela B.II.1 nas zonas 2R, 4A, 4B, 5B e 6B) e equipamentos de rotação fixa usam 1,062 x CEE."))
-        st.caption(t("Este campo vale apenas para sistemas unitários. Sistemas centrais (por exemplo, com resfriadores de líquido) "
-                     "têm o CEER calculado pelo SPLV ou pelo fator K (item B.II.4.2), que não é tratado por esta ferramenta."))
         heating = st.checkbox(t("O projeto possui sistema de aquecimento"), value=False, key="heating",
                               help=t("Item C.I.6: a carga de aquecimento (setpoint 21 °C) só é calculada quando há aquecimento em projeto."))
         ceea_real = None
@@ -817,11 +786,8 @@ def main():
                                         value=round(1.72 + 0.5 * ceer_real, 2), step=0.01, key=f"ceea_{ceer_real}",
                                         help=t("Equação C.I.8: para split e janela, 1,72 + 0,5 x CEER, ou dado do fabricante."))
         with st.expander(t("Opções avançadas")):
-            st.caption(t("Renovação de ar nas APPs, aplicada igualmente aos modelos real e de referência. Os valores iniciais são "
-                         "os da ABNT NBR 16401-3, Tabela 1, sala de aula, nível 1."))
             oa_person = st.number_input(t("Fp, vazão por pessoa (L/s.pessoa)"), min_value=0.0, value=5.0, step=0.1, key="oa_person")
             oa_area = st.number_input(t("Fa, vazão por área (L/s.m²)"), min_value=0.0, value=0.6, step=0.1, key="oa_area")
-        st.subheader(t("Motor de simulação"))
         cli_default = find_openstudio_cli()
         if cli_default or platform.system() != "Linux":
             engine = "cli"
@@ -834,16 +800,9 @@ def main():
                 elif not version.startswith(python_version):
                     st.warning(t("Versões diferentes: CLI {cli}, Python {python}. Use a mesma versão nos dois.",
                                  cli=version, python=python_version))
-                else:
-                    st.success(f"OpenStudio {version}")
         else:
             engine = "energyplus"
             executable = energyplus_runner.find_energyplus()
-            if executable:
-                st.success(t("EnergyPlus {version} pronto.", version=energyplus_runner.ENERGYPLUS_VERSION))
-            else:
-                st.info(t("EnergyPlus {version} será baixado na primeira simulação (cerca de 190 MB, uma única vez).",
-                          version=energyplus_runner.ENERGYPLUS_VERSION))
 
     st.header(t("1. Arquivos de entrada"))
     col_gbxml, col_epw = st.columns(2)
@@ -883,8 +842,7 @@ def main():
     has_lighting = (spaces["lpd"] > 0).any()
     if has_lighting:
         lighting_mode, dpi_value, lighting_app_only = "gbxml", None, False
-        st.success(t("DPI de projeto encontrada no gbXML. Sistema de iluminação avaliado: modelo real com a DPI do gbXML, "
-                     "referência com {dpi} W/m² nos ambientes com iluminação (item C.I.4).", dpi=REFERENCE_DPI))
+        st.success(t("DPI de projeto encontrada no gbXML."))
     else:
         st.warning(t("O gbXML não tem densidade de potência de iluminação (LightPowerPerArea). Escolha como seguir:"))
         lighting_options = {
@@ -936,14 +894,10 @@ def main():
     if "real_osm" not in st.session_state:
         st.stop()
 
-    with st.expander(t("Registro das etapas")):
-        st.code("\n\n".join(st.session_state.get("log", [])))
-
     st.header(t("4. Geometria do modelo real"))
-    st.plotly_chart(geometry_figure(st.session_state["geometry"]), width="stretch")
-    st.caption(t("Arraste para girar, role para aproximar e passe o mouse para ver o elemento. Clique em um item da legenda "
-                 "para esconder ou mostrar esse elemento. No modelo de referência, os sombreamentos de fachada (brises, "
-                 "beirais, marquises) são retirados automaticamente e o entorno é mantido (item C.I.4)."))
+    # Collapsed by default: the 3D view takes the mouse wheel, so the page could not scroll past it
+    with st.expander(t("Mostrar modelo 3D"), expanded=False):
+        st.plotly_chart(geometry_figure(st.session_state["geometry"]), width="stretch")
 
     missing_enclosure = st.session_state.get("missing_enclosure", [])
     if missing_enclosure:
@@ -968,33 +922,22 @@ def main():
     lighting_evaluated = results.get("lighting_evaluated", True)
     lighting_class = coefficients.calculate_class(results["redcil"], coef["factor_i_lighting"]) if lighting_evaluated else "-"
 
-    def limits_text(i):
-        return t("A > {a} %, B > {b} %, C > {c} %, D de 0 a {c} %, E < 0 %", a=f"{3 * i:.1f}", b=f"{2 * i:.1f}", c=f"{i:.1f}")
-
     if not energy_label(results, general_class):
         class_badge(t("Classificação geral"), general_class, "large")
         st.markdown(f"<div style='text-align:center;font-size:1.6rem;font-weight:600;margin-top:0.4rem'>RedCEP {results['redcep']:.1f} %</div>",
                     unsafe_allow_html=True)
-    st.caption(t("Eq. 8.1, Tabela 8.2. CRCEPD-A = {crc:.2f}, i = {i:.2f} %. Limites: {limits}.",
-                 crc=coef["crcepd_a"], i=coef["factor_i"], limits=limits_text(coef["factor_i"])) + " " +
-               t("Valores em energia primária (fcE = {fce}) por área total construída ({area} m²). A diferença do total inclui os "
-                 "equipamentos; o RedCEP os desconta da base (Eq. 8.1).", fce=redcep.PRIMARY_ENERGY_FACTOR_BRAZIL,
-                 area=f"{results['real_model'].get('total_area') or 0:.0f}"))
-    with st.container():
-        st.markdown(f"**{t('Classificações parciais dos sistemas')}**")
-        partial = [
-            (t("Envoltória"), envelope_class, f"RedCgTT {results['redcgtt']:.1f} %",
-             t("Eq. C.I.10, Tabela 8.4. CRCgTTD-A = {crc:.2f}, i = {i:.2f} %.", crc=coef["crcgtt_d_a"], i=coef["factor_i_envelope"])),
-            (t("Condicionamento de ar"), air_conditioning_class, f"RedCR {results['redcr']:.1f} %",
-             t("Eq. B.II.1, Tabela 8.6. CRCRD-A = {crc:.2f}, i = {i:.2f} %.", crc=coef["crcr_d_a"], i=coef["factor_i_air_conditioning"])),
-            (t("Iluminação"), lighting_class, f"RedCIL {results['redcil']:.1f} %" if lighting_evaluated else t("Não avaliado"),
-             t("Eq. B.III.1, Tabela 8.8. DPIL A = 7,5 e D = 15,5 W/m² (Tabela B.III.2), i = {i:.2f} %.", i=coef["factor_i_lighting"])
-             if lighting_evaluated else t("O gbXML não tem DPI de projeto e o sistema de iluminação não foi avaliado.")),
-        ]
-        for column, (label, value, reduction, note) in zip(st.columns(3), partial):
-            with column:
-                class_badge(label, value, "small")
-                st.markdown(f"<div style='text-align:center;font-size:1rem;margin-top:0.3rem'>{reduction}</div>", unsafe_allow_html=True)
+    st.markdown(f"**{t('Classificações parciais dos sistemas')}**")
+    partial = [
+        (t("Envoltória"), envelope_class, f"RedCgTT {results['redcgtt']:.1f} %", None),
+        (t("Condicionamento de ar"), air_conditioning_class, f"RedCR {results['redcr']:.1f} %", None),
+        (t("Iluminação"), lighting_class, f"RedCIL {results['redcil']:.1f} %" if lighting_evaluated else t("Não avaliado"),
+         None if lighting_evaluated else t("O gbXML não tem DPI de projeto e o sistema de iluminação não foi avaliado.")),
+    ]
+    for column, (label, value, reduction, note) in zip(st.columns(3), partial):
+        with column:
+            class_badge(label, value, "small")
+            st.markdown(f"<div style='text-align:center;font-size:1rem;margin-top:0.3rem'>{reduction}</div>", unsafe_allow_html=True)
+            if note:
                 st.caption(note)
 
     rows = [
@@ -1017,12 +960,6 @@ def main():
         t("Modelo de referência (kWh/ano)"): [round(results["reference_model"][key], 1) for _, key in rows],
         t("Modelo de referência (kWh/m².ano)"): [round(results["reference_model"][key] / ref_area, 2) if ref_area else None for _, key in rows],
     })
-    st.dataframe(table, width="stretch", hide_index=True)
-    st.caption(t("CEER real {ceer:.2f}, CEER referência {ceer_ref}. Iluminação e equipamentos ajustados para {days} dias "
-                 "(simulados: {simulated}). Fator de energia primária fcE = {fce}. "
-                 "O RedCEP desconta o consumo de equipamentos dos dois modelos (Eq. 8.1).",
-                 ceer=results["real_model"]["ceer"], ceer_ref=CEER_REFERENCE, days=redcep.OCCUPATION_DAYS_LIGHTING_EQUIPMENT,
-                 simulated=results["real_model"]["simulated_days"], fce=redcep.PRIMARY_ENERGY_FACTOR_BRAZIL))
 
     st.header(t("6. Arquivos"))
     files_section = st.expander(t("Mostrar arquivos"), expanded=False)
