@@ -19,13 +19,17 @@ class AirflowAssigner:
         # Outdoor air for APP spaces (NBR 16401-3 Table 1, classroom, level 1)
         self.outdoor_air_per_person = outdoor_air_per_person  # m³/s per person
         self.outdoor_air_per_area = outdoor_air_per_area  # m³/s per m²
-        # Crack infiltration for closed openings (INI-C Table C.4)
+        # Crack infiltration for closed openings (INI-C Table C.3)
         self.window_crack_coefficient = 0.00063  # kg/(s.m)
         self.window_crack_exponent = 0.63
         self.door_crack_coefficient = 0.0024  # kg/(s.m)
         self.door_crack_exponent = 0.59
-        self.discharge_coefficient = 0.60
-        self.minimum_density_difference = 0.0001  # kg/m³
+        self.air_density = 1.2  # kg/m³, converts the mass flow coefficients to volume flow
+        # AIM-2 enhanced model (EnergyPlus ZoneInfiltration:FlowCoefficient, ASHRAE Fundamentals): no flue,
+        # one, two and three or more stories; shelter class 3 (other buildings across the street)
+        self.stack_coefficients = (0.054, 0.078, 0.098)  # (Pa/K)^n
+        self.wind_coefficients = (0.156, 0.170, 0.170)  # (Pa.s²/m²)^n
+        self.shelter_factor = 0.70
         self.window_types = ["FixedWindow", "OperableWindow", "Skylight", "TubularDaylightDome", "TubularDaylightDiffuser"]
         self.door_types = ["Door", "GlassDoor", "OverheadDoor"]
 
@@ -76,167 +80,83 @@ class AirflowAssigner:
                 logging.info(f"APT | No outdoor air for zone: {zone.nameString()}")
         return spaces_processed
 
-    def _building_geometry(self, model):
-        """Returns number of stories, aspect ratio and long axis azimuth for wind pressure calculation."""
-        xs, ys, zs = [], [], []
-        for surface in model.getSurfaces():
-            space_opt = surface.space()
-            if not space_opt.is_initialized():
-                continue
-            transformation = space_opt.get().buildingTransformation()
-            for vertex in surface.vertices():
-                p = transformation * vertex
-                xs.append(p.x())
-                ys.append(p.y())
-                zs.append(p.z())
-        if not xs:
-            return 1, 1.0, 0.0
-        dx = max(xs) - min(xs)
-        dy = max(ys) - min(ys)
-        long_axis = max(dx, dy)
-        short_axis = max(min(dx, dy), 0.01)
-        aspect_ratio = max(min(short_axis / long_axis, 1.0), 0.01) if long_axis > 0 else 1.0
-        north_axis = model.getBuilding().northAxis()
-        azimuth = (north_axis + (90.0 if dx >= dy else 0.0)) % 180.0
-        stories = len(model.getBuildingStorys())
-        return stories, aspect_ratio, azimuth
-
     def _remove_airflow_network_objects(self, model):
+        """Removes AirflowNetwork objects left by earlier versions of this script."""
         for obj in model.getAirflowNetworkSurfaces():
             obj.remove()
         for obj in model.getAirflowNetworkSimpleOpenings():
             obj.remove()
         for obj in model.getAirflowNetworkZones():
             obj.remove()
+        control = model.getOptionalAirflowNetworkSimulationControl()
+        if control.is_initialized():
+            control.get().remove()
 
-    def _zone_of(self, planar_surface):
-        space_opt = planar_surface.space()
-        if not space_opt.is_initialized():
-            return None
-        zone_opt = space_opt.get().thermalZone()
-        if not zone_opt.is_initialized():
-            return None
-        return zone_opt.get()
-
-    def apply_airflow_network(self, model):
-        """Models all windows and doors closed with crack infiltration (INI-C C.I.6 and Table C.4)."""
+    def apply_crack_infiltration(self, model):
+        """Models all windows and doors closed with crack infiltration (INI-C C.I.6 and Table C.3).
+        The Table C.3 coefficients of the exterior windows and doors of each space are summed into one flow
+        coefficient, driven by wind and indoor-outdoor temperature difference (ZoneInfiltration:FlowCoefficient).
+        Replaces the AirflowNetwork, which took about 80 % of the simulation time with close results."""
         self._remove_airflow_network_objects(model)
+        for obj in model.getSpaceInfiltrationFlowCoefficients():
+            obj.remove()
 
-        stories, aspect_ratio, azimuth = self._building_geometry(model)
-        control = model.getAirflowNetworkSimulationControl()
-        control.setName("AirflowNetwork INI-C")
-        control.setAirflowNetworkControl("MultizoneWithoutDistribution")
-        control.setWindPressureCoefficientType("SurfaceAverageCalculation")
-        control.setBuildingType("HighRise" if stories > 3 else "LowRise")
-        control.setBuildingAspectRatio(aspect_ratio)
-        control.setAzimuthAngleofLongAxisofBuilding(azimuth)
+        stories = len(model.getBuildingStorys())
+        index = min(max(stories, 1), 3) - 1
+        stack_coefficient = self.stack_coefficients[index]
+        wind_coefficient = self.wind_coefficients[index]
 
-        window_component = openstudio.model.AirflowNetworkSimpleOpening(
-            model, self.window_crack_coefficient, self.window_crack_exponent,
-            self.minimum_density_difference, self.discharge_coefficient)
-        window_component.setName("INI-C Window Crack")
-        door_component = openstudio.model.AirflowNetworkSimpleOpening(
-            model, self.door_crack_coefficient, self.door_crack_exponent,
-            self.minimum_density_difference, self.discharge_coefficient)
-        door_component.setName("INI-C Door Crack")
-
-        zones = {}
-        openings = []
-        processed = set()
-        counts = {"windows": 0, "doors": 0, "skipped": 0}
+        spaces = {}
+        counts = {"windows": 0, "doors": 0}
         for sub_surface in model.getSubSurfaces():
-            handle = str(sub_surface.handle())
-            if handle in processed:
-                continue
             sub_type = sub_surface.subSurfaceType()
             if sub_type in self.window_types:
-                component = window_component
-                key = "windows"
+                coefficient, exponent, key = self.window_crack_coefficient, self.window_crack_exponent, "windows"
             elif sub_type in self.door_types:
-                component = door_component
-                key = "doors"
+                coefficient, exponent, key = self.door_crack_coefficient, self.door_crack_exponent, "doors"
             else:
                 continue
             surface_opt = sub_surface.surface()
-            if not surface_opt.is_initialized():
+            space_opt = sub_surface.space()
+            if not surface_opt.is_initialized() or not space_opt.is_initialized():
                 continue
-            surface = surface_opt.get()
-            boundary = surface.outsideBoundaryCondition()
-            zone = self._zone_of(sub_surface)
-            if zone is None:
-                counts["skipped"] += 1
+            if surface_opt.get().outsideBoundaryCondition() != "Outdoors":
                 continue
-            zone_handles = [str(zone.handle())]
-            zones[zone_handles[0]] = zone
-            if boundary == "Outdoors":
-                pass
-            elif boundary == "Surface":
-                adjacent_opt = sub_surface.adjacentSubSurface()
-                if not adjacent_opt.is_initialized():
-                    counts["skipped"] += 1
-                    logging.warning(f"Interior opening '{sub_surface.nameString()}' has no adjacent sub surface. Skipped.")
-                    continue
-                adjacent = adjacent_opt.get()
-                adjacent_zone = self._zone_of(adjacent)
-                processed.add(str(adjacent.handle()))
-                if adjacent_zone is None or str(adjacent_zone.handle()) == str(zone.handle()):
-                    counts["skipped"] += 1
-                    continue
-                zone_handles.append(str(adjacent_zone.handle()))
-                zones[zone_handles[1]] = adjacent_zone
-            else:
-                counts["skipped"] += 1
-                continue
-            openings.append((sub_surface, component, key, zone_handles))
-            processed.add(handle)
-
-        # EnergyPlus requires at least two AirflowNetwork surfaces in each AirflowNetwork zone. Zones with a single
-        # opening (for example a stairwell with one door) are left out of the network, together with that opening.
-        excluded = set()
-        while True:
-            per_zone = {}
-            for _, _, _, zone_handles in openings:
-                for zone_handle in zone_handles:
-                    per_zone[zone_handle] = per_zone.get(zone_handle, 0) + 1
-            single = {zone_handle for zone_handle, number in per_zone.items() if number < 2}
-            if not single:
-                break
-            excluded |= single
-            kept = [opening for opening in openings if not set(opening[3]) & single]
-            counts["skipped"] += len(openings) - len(kept)
-            openings = kept
-
-        linked_zones = {}
-        for sub_surface, component, key, zone_handles in openings:
-            sub_surface.getAirflowNetworkSurface(component)
-            for zone_handle in zone_handles:
-                linked_zones[zone_handle] = zones[zone_handle]
+            # Crack length taken as the opening perimeter
+            vertices = list(sub_surface.vertices())
+            perimeter = sum((vertices[i] - vertices[i - 1]).length() for i in range(len(vertices)))
+            mass_flow = coefficient * perimeter
+            handle = str(space_opt.get().handle())
+            space, total, weighted = spaces.get(handle, (space_opt.get(), 0.0, 0.0))
+            spaces[handle] = (space, total + mass_flow, weighted + mass_flow * exponent)
             counts[key] += 1
 
-        for zone in linked_zones.values():
-            afn_zone = zone.getAirflowNetworkZone()
-            afn_zone.setVentilationControlMode("NoVent")
+        always_on = model.alwaysOnDiscreteSchedule()
+        for space, total, weighted in sorted(spaces.values(), key=lambda item: item[0].nameString()):
+            infiltration = openstudio.model.SpaceInfiltrationFlowCoefficient(model)
+            infiltration.setName(f"{space.nameString()} Crack Infiltration")
+            infiltration.setSpace(space)
+            infiltration.setSchedule(always_on)
+            infiltration.setFlowCoefficient(total / self.air_density)
+            infiltration.setPressureExponent(weighted / total)
+            infiltration.setStackCoefficient(stack_coefficient)
+            infiltration.setWindCoefficient(wind_coefficient)
+            infiltration.setShelterFactor(self.shelter_factor)
 
-        excluded_names = sorted(zones[zone_handle].nameString() for zone_handle in excluded)
-        if excluded_names:
-            logging.warning(f"Zones without crack infiltration (fewer than two openings): {', '.join(excluded_names)}")
-            print(f" - Zones left out of the AirflowNetwork (fewer than two openings): {len(excluded_names)}")
-            for name in excluded_names:
-                print(f"   {name}")
-
-        logging.info(f"AirflowNetwork: {counts['windows']} windows and {counts['doors']} doors with crack infiltration, "
-                     f"{len(linked_zones)} zones linked, {counts['skipped']} openings skipped")
-        print("AirflowNetwork crack infiltration (INI-C Table C.4):")
-        print(f" - Windows: {counts['windows']} (C = {self.window_crack_coefficient} kg/(s.m), n = {self.window_crack_exponent})")
-        print(f" - Doors: {counts['doors']} (C = {self.door_crack_coefficient} kg/(s.m), n = {self.door_crack_exponent})")
-        print(f" - Zones linked: {len(linked_zones)}")
+        logging.info(f"Crack infiltration: {counts['windows']} exterior windows and {counts['doors']} exterior doors, "
+                     f"{len(spaces)} spaces, stack coefficient {stack_coefficient}, wind coefficient {wind_coefficient}, "
+                     f"shelter factor {self.shelter_factor}")
+        print("Crack infiltration with flow coefficients (INI-C Table C.3):")
+        print(f" - Exterior windows: {counts['windows']} (C = {self.window_crack_coefficient} kg/(s.m), n = {self.window_crack_exponent})")
+        print(f" - Exterior doors: {counts['doors']} (C = {self.door_crack_coefficient} kg/(s.m), n = {self.door_crack_exponent})")
+        print(f" - Spaces with crack infiltration: {len(spaces)}")
         return counts
 
     def update_airflow_objects(self, model):
-        """Applies outdoor air (APP) and crack infiltration through AirflowNetwork (all zones)."""
+        """Applies outdoor air (APP) and crack infiltration (all spaces with exterior windows or doors)."""
         self.remove_infiltration_objects(model)
         spaces_processed = self.update_outdoor_air(model)
-        self.apply_airflow_network(model)
+        self.apply_crack_infiltration(model)
         logging.info(f"Outdoor air updated: {spaces_processed['APP']} APPs, {spaces_processed['APT']} APTs, {spaces_processed['UNCLASSIFIED']} unclassified")
         print("Airflow assigner processing summary:")
         print(f" - APP: {spaces_processed['APP']} (outdoor air {self.outdoor_air_per_person} m³/s per person)")
@@ -256,7 +176,7 @@ class AirflowAssigner:
             model = osm_model_handle.get()
             # Update airflow objects
             if afn_only:
-                self.apply_airflow_network(model)
+                self.apply_crack_infiltration(model)
             else:
                 self.update_airflow_objects(model)
             # Save updated model
@@ -280,7 +200,7 @@ class AirflowAssigner:
         print("Airflow Assigner")
         print("Applies airflow settings to all spaces in OSM model:\n"
               "- APP: outdoor air\n"
-              "- All zones: closed windows and doors with crack infiltration (AirflowNetwork)\n")
+              "- All spaces: closed exterior windows and doors with crack infiltration (flow coefficients)\n")
         print(f"- Outdoor Air (APP): {self.outdoor_air_per_person} m³/s per person\n")
         # Select OSM file
         osm_path = filedialog.askopenfilename(
@@ -323,7 +243,7 @@ def main():
     else:
         print("Usage: python script.py [osm_input osm_output [afn_only]] or run without arguments for GUI")
         print()
-        print("This script applies outdoor air to APP spaces and crack infiltration (AirflowNetwork, INI-C Table C.4) to all zones.")
+        print("This script applies outdoor air to APP spaces and crack infiltration (flow coefficients, INI-C Table C.3) to all spaces.")
         sys.exit(1)
 
 if __name__ == "__main__":
